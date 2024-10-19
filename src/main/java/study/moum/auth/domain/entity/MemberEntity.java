@@ -41,7 +41,7 @@ public class MemberEntity { // todo : userdetails implement 여기다가 + db co
     @Column(name = "email", nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TeamMemberEntity> teams = new ArrayList<>();
 
     // role은 회원가입 시 입력하게 할지?

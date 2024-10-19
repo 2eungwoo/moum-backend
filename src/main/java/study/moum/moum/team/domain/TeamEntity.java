@@ -31,7 +31,7 @@ public class TeamEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TeamMemberEntity> members = new ArrayList<>();
 
     @Column(name = "created_at")

@@ -34,6 +34,7 @@ public class CommentDto {
     }
 
     @Getter
+    @AllArgsConstructor
     public static class Response{
 
         private final int commentId;

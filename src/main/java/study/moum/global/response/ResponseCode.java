@@ -14,6 +14,15 @@ public enum ResponseCode {
     LOGOUT_SUCCESS(200, "M004", "로그아웃 되었습니다."),
     GET_MY_INFO_SUCCESS(200, "M005", "내 정보 조회 완료"),
 
+    // TEAM
+    CREATE_TEAM_SUCCESS(201, "T001", "팀 생성 성공."),
+    UPDATE_TEAM_SUCCESS(201, "T002", "팀 정보 수정 성공."),
+    DELETE_TEAM_SUCCESS(200, "T003", "팀 삭제 성공"),
+    GET_TEAM_SUCCESS(200, "T005", "팀 단건 조회 성공."),
+    GET_TEAM_LIST_SUCCESS(200, "T006", "전체 팀 리스트 조회 성공"),
+    GET_MY_TEAM_LIST_SUCCESS(200, "T007", "내 팀 리스트 조회 성공"),
+    INVITE_MEMBER_SUCCESS(201, "T008", "멤버를 팀에 초대했습니다."),
+
     // Article
     ARTICLE_LIST_GET_SUCCESS(200,"A001","게시글 목록 조회 성공."),
     ARTICLE_GET_SUCCESS(200,"A002","게시글 단건 조회 성공."),

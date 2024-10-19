@@ -47,7 +47,10 @@ public enum ErrorCode {
     DUPLICATE_LIKES(409, "L001","이미 좋아요 누른 게시글입니다."),
     LIKES_NOT_FOUND(404, "L002","찾을 수 없는 좋아요입니다."),
     CANNOT_CREATE_SELF_LIKES(409, "L003","자신의 게시글에는 좋아요를 누를 수 없습니다."),
-    CANNOT_DELETE_OTHERS_LIKES(409, "L004","본인이 등록한 좋아요만 취소할 수 있습니다.");
+    CANNOT_DELETE_OTHERS_LIKES(409, "L004","본인이 등록한 좋아요만 취소할 수 있습니다."),
+
+    // Team
+    MEMBER_ALREADY_INVITED(400, "T001", "이미 초대된 멤버입니다.");
 
 
     private final int status;
