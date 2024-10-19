@@ -111,6 +111,24 @@ class TeamServiceTest {
     }
 
     @Test
+    @DisplayName("팀 삭제 성공")
+    void delete_team_success() throws Exception{
+
+    }
+
+    @Test
+    @DisplayName("팀 삭제 실패 - 리더가 아님")
+    void delete_team_fail_notleader() throws Exception{
+
+    }
+
+    @Test
+    @DisplayName("팀 삭제 실패 - 없는 팀")
+    void delete_team_fail_noteam() throws Exception{
+
+    }
+
+    @Test
     @DisplayName("팀 멤버 초대 성공")
     void invite_member_success() {
         // given
@@ -201,6 +219,40 @@ class TeamServiceTest {
         assertEquals("이미 초대된 멤버입니다.",ErrorCode.MEMBER_ALREADY_INVITED.getMessage());
         verify(teamMemberRepository, times(0)).save(any(TeamMemberEntity.class));
     }
+
+    @Test
+    @DisplayName("멤버 추방 성공")
+    void exile_member_success() throws Exception {
+
+    }
+
+
+    @Test
+    @DisplayName("멤버 추방 실패 - 리더 아님")
+    void exile_member_notleader() throws Exception {
+
+    }
+
+
+    @Test
+    @DisplayName("멤버 추방 실패 - 팀 멤버가 아님")
+    void exile_member_fail_notmember() throws Exception {
+
+    }
+
+
+    @Test
+    @DisplayName("팀 정보 수정 성공")
+    void update_team_info_success() throws Exception {
+
+    }
+
+    @Test
+    @DisplayName("팀 정보 수정 실패 - 리더가 아님")
+    void update_team_ino_fail_notleader() throws Exception {
+
+    }
+
 
 
 }

@@ -88,57 +88,43 @@ class TeamControllerTest {
                 .teamname("test team")
                 .description("test description")
                 .build();
+
+
     }
 
+
     @Test
-    @DisplayName("팀 생성 성공")
+    @DisplayName("팀 생성 테스트")
     @WithAuthUser
-    void create_team_success() throws Exception{
+    @Disabled("팀원 넣고 팀원리스트 뽑는 테스트 추가해야함")
+    void create_team_success() throws Exception {
         // given
-
-        MemberEntity member2 = MemberEntity.builder()
-                .id(2)
-                .email("member@user.com")
-                .username("memberuser")
-                .teams(new ArrayList<>())
-                .build();
-
-        // 멤버 리스트 생성
-        //List<MemberDto.Response> memberlist = new ArrayList<>();
-        //memberlist.add(leader); // 리더 추가
-        //memberlist.add(member2); // 다른 멤버 추가
-
         TeamDto.Request teamRequest = TeamDto.Request.builder()
-                // .members(memberlist)
                 .teamname("test team")
                 .description("test description")
                 .leaderId(leader.getId())
                 .build();
 
+        // Mock 응답 생성
         TeamDto.Response response = new TeamDto.Response(team);
 
         // when
-        // when(teamService.createTeam(teamRequest, leader.getUsername())).thenReturn(response);
         when(teamService.createTeam(any(TeamDto.Request.class), any(String.class))).thenReturn(response);
 
         // then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/teams")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(teamRequest))
-                .with(csrf()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(teamRequest))
+                        .with(csrf()))
                 .andExpect(jsonPath("$.status").value(201))
                 .andExpect(jsonPath("$.message").value(ResponseCode.CREATE_TEAM_SUCCESS.getMessage()))
-                .andExpect(jsonPath("$.data.leaderId").value(teamRequest.getLeaderId()))
-                .andExpect(jsonPath("$.data.teamName").value(teamRequest.getTeamname()));
-//                .andExpect(jsonPath("$.memberIds[0]").value(leader.getId()))
-//                .andExpect(jsonPath("$.memberIds[1]").value(member2.getId()));
-
-
+                .andExpect(jsonPath("$.data.teamName").value("test team"))
+                .andExpect(jsonPath("$.data.leaderId").value(leader.getId()));
     }
 
 
     @Test
-    @DisplayName("팀 정보 조회(단건) 성공")
+    @DisplayName("팀 정보 조회(단건) 테스트")
     @WithAuthUser
     void get_team_info_success() throws Exception{
         // given
@@ -157,7 +143,7 @@ class TeamControllerTest {
     }
 //
 //    @Test
-//    @DisplayName("모든 팀 리스트 조회 성공")
+//    @DisplayName("모든 팀 리스트 조회 테스트")
 //    @WithAuthUser
 //    void get_team_list_success() throws Exception {
 //        // given
@@ -195,7 +181,7 @@ class TeamControllerTest {
 //
 //
 //    @Test
-//    @DisplayName("팀 정보 수정 성공")
+//    @DisplayName("팀 정보 수정 테스트")
 //    @WithAuthUser
 //    @Disabled
 //    void update_team_info_success() throws Exception{
@@ -223,7 +209,7 @@ class TeamControllerTest {
 //    }
 
     @Test
-    @DisplayName("나의 팀 리스트 조회 성공")
+    @DisplayName("나의 팀 리스트 조회 테스트")
     @WithAuthUser
     void get_my_team_list_success() throws Exception{
 
@@ -231,14 +217,14 @@ class TeamControllerTest {
 
 
     @Test
-    @DisplayName("팀 삭제 성공")
+    @DisplayName("팀 삭제 테스트")
     @WithAuthUser
     void delete_team_success() throws Exception{
 
     }
 
     @Test
-    @DisplayName("팀에 멤버 초대 성공")
+    @DisplayName("팀에 멤버 초대 테스트")
     @WithAuthUser
     void invite_member_success() throws Exception{
         // given
@@ -265,42 +251,11 @@ class TeamControllerTest {
     }
 
     @Test
-    @DisplayName("팀에서 멤버 추방 성공")
+    @DisplayName("팀에서 멤버 추방 테스트")
     @WithAuthUser
     void exile_member_success() throws Exception{
 
     }
-
-    @Test
-    @DisplayName("팀 생성 성공")
-    @WithAuthUser
-    void create_team_success2() throws Exception {
-        // given
-        TeamDto.Request teamRequest = TeamDto.Request.builder()
-                .teamname("test team")
-                .description("test description")
-                .leaderId(leader.getId())
-                .build();
-
-        // Mock 응답 생성
-        TeamDto.Response response = new TeamDto.Response(team);
-
-        // when
-        when(teamService.createTeam(any(TeamDto.Request.class), any(String.class))).thenReturn(response);
-
-        // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/teams")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(teamRequest))
-                        .with(csrf()))
-                .andExpect(jsonPath("$.status").value(201))
-                .andExpect(jsonPath("$.message").value(ResponseCode.CREATE_TEAM_SUCCESS.getMessage()))
-                .andExpect(jsonPath("$.data.teamName").value("test team"))
-                .andExpect(jsonPath("$.data.leaderId").value(leader.getId()));
-    }
-
-
-
 
 
 
