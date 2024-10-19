@@ -5,6 +5,8 @@ import lombok.*;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.community.article.domain.article_details.ArticleDetailsEntity;
 
+import java.time.LocalDateTime;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +31,13 @@ public class CommentEntity {
     @Column(name = "content")
     private String content;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
+    @PrePersist
+    public void createDate(){
+        this.createdAt = LocalDateTime.now();
+    }
     public void updateComment(String newContent){
         this.content = newContent;
     }
