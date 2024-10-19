@@ -22,6 +22,15 @@ public class TeamEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(name = "leader_id")
+    private int leaderId;
+
+    @Column(name = "team_name")
+    private String teamname;
+
+    @Column(name = "description")
+    private String description;
+
     @OneToMany(mappedBy = "team")
     private List<TeamMemberEntity> members = new ArrayList<>();
 
