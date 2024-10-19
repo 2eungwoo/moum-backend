@@ -11,11 +11,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.community.article.domain.article.ArticleEntity;
+import study.moum.community.article.domain.article.ArticleRepository;
 import study.moum.community.article.domain.article_details.ArticleDetailsEntity;
 import study.moum.community.article.domain.article_details.ArticleDetailsRepository;
+import study.moum.community.article.dto.ArticleDto;
 import study.moum.community.comment.domain.CommentEntity;
 import study.moum.community.comment.domain.CommentRepository;
 import study.moum.community.comment.dto.CommentDto;
+import study.moum.custom.WithAuthUser;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.NoAuthorityException;
@@ -35,6 +38,9 @@ class CommentServiceTest {
     private CommentRepository commentRepository;
 
     @Mock
+    private ArticleRepository articleRepository;
+
+    @Mock
     private ArticleDetailsRepository articleDetailsRepository;
 
     @Mock
@@ -44,6 +50,7 @@ class CommentServiceTest {
     private ArticleDetailsEntity articleDetails;
     private ArticleEntity article;
     private CommentEntity comment;
+
 
     @BeforeEach
     void setup() {
@@ -63,6 +70,7 @@ class CommentServiceTest {
                 .title("test title")
                 .author(author)
                 .category(ArticleEntity.ArticleCategories.RECRUIT_BOARD)
+                .commentCount(0)
                 .build();
 
         articleDetails = ArticleDetailsEntity.builder()
@@ -82,23 +90,74 @@ class CommentServiceTest {
 
     @Test
     @DisplayName("댓글 생성 성공")
-    @WithMockUser(username = "testuser") // 로그인한 사용자 설정
-    @Disabled("에러 수정해야함")
-    void createComment_Success() {
-        // Given
-        CommentDto.Request requestDto = new CommentDto.Request("테스트 댓글", author, articleDetails);
+    @WithAuthUser(email = "test@user.com", username = "testuser")
+    void create_comment_success(){
+        // given
+        CommentDto.Request commentRequest = CommentDto.Request.builder()
+                .articleDetails(articleDetails)
+                .content("test content")
+                .author(author)
+                .build();
 
-        when(memberRepository.findByUsername("testuser")).thenReturn(author);
-        when(articleDetailsRepository.findById(1)).thenReturn(Optional.of(articleDetails));
-        when(commentRepository.save(any(CommentEntity.class))).thenReturn(comment);
+        // Mock 동작
+        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author);
+        when(articleDetailsRepository.findById(articleDetails.getId())).thenReturn(Optional.ofNullable(articleDetails));
+        when(articleRepository.findById(article.getId())).thenReturn(Optional.ofNullable(article));
 
-        // When
-        CommentDto.Response response = commentService.createComment(requestDto, "testuser", 1);
+        // when
+        CommentDto.Response response = commentService.createComment(commentRequest,author.getUsername(),article.getId());
 
-        // Then
-        assertNotNull(response);
-        assertEquals("테스트 댓글", response.getContent());
-        verify(commentRepository, times(1)).save(any(CommentEntity.class));
+        // then
+        verify(commentRepository).save(any(CommentEntity.class));
+        assertEquals("test content", response.getContent());
+        assertEquals(1, article.getCommentCount());
+
+    }
+
+    @Test
+    @DisplayName("댓글 수정 성공")
+    @WithAuthUser(email = "test@user.com", username = "testuser")
+    void update_comment_success(){
+        // given
+        CommentDto.Request updateRequest = CommentDto.Request.builder()
+                .articleDetails(articleDetails)
+                .content("update content")
+                .author(author)
+                .build();
+
+        // Mock 동작
+        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author);
+        when(articleDetailsRepository.findById(articleDetails.getId())).thenReturn(Optional.ofNullable(articleDetails));
+        when(articleRepository.findById(article.getId())).thenReturn(Optional.ofNullable(article));
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.ofNullable(comment));
+
+        // when
+        CommentDto.Response response = commentService.updateComment(updateRequest,author.getUsername(),article.getId());
+
+        // then
+        verify(commentRepository).save(any(CommentEntity.class));
+        assertEquals("update content", response.getContent());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 성공")
+    @WithAuthUser(email = "test@user.com", username = "testuser")
+    void delete_comment_success(){
+        // given
+
+        // Mock 동작
+        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author);
+        when(articleDetailsRepository.findById(articleDetails.getId())).thenReturn(Optional.ofNullable(articleDetails));
+        when(articleRepository.findById(article.getId())).thenReturn(Optional.ofNullable(article));
+        when(commentRepository.findById(comment.getId())).thenReturn(Optional.ofNullable(comment));
+
+        // when
+        CommentDto.Response response = commentService.deleteComment(author.getUsername(),article.getId());
+
+        // then
+        verify(commentRepository).deleteById(comment.getId());
+        assertEquals(1, response.getCommentId());
+        assertEquals(0,article.getCommentCount());
     }
 
     @Test
