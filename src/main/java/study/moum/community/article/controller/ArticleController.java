@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import study.moum.auth.domain.CustomUserDetails;
+import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.community.article.domain.article.ArticleEntity;
 
 import study.moum.community.article.dto.ArticleDetailsDto;
@@ -91,7 +92,6 @@ public class ArticleController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails){
 
         ArticleDetailsDto.Response articleResponse = articleService.updateArticleDetails(id, articleDetailsRequestDto, customUserDetails.getUsername());
-
         ResultResponse response = ResultResponse.of(ResponseCode.ARTICLE_UPDATE_SUCCESS, articleResponse);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }

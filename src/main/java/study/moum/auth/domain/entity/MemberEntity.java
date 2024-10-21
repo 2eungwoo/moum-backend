@@ -3,11 +3,14 @@ package study.moum.auth.domain.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import study.moum.community.article.domain.article.ArticleEntity;
 import study.moum.community.likes.domain.LikesEntity;
 import study.moum.moum.team.domain.TeamMemberEntity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
