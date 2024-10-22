@@ -3,6 +3,8 @@ package study.moum.moum.team.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.auth.dto.MemberDto;
@@ -30,10 +32,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDto.Response getTeamById(String username, int teamId){
 
-        MemberEntity loginuser = memberRepository.findByUsername(username);
-        if(loginuser == null){
-            throw new NeedLoginException();
-        }
+       findLoginUser(username);
 
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(()-> new CustomException(ErrorCode.ILLEGAL_ARGUMENT));
@@ -43,16 +42,14 @@ public class TeamService {
 
     @Transactional
     public TeamDto.Response createTeam(TeamDto.Request teamRequestDto, String username){
-        MemberEntity loginuser = memberRepository.findByUsername(username);
-        if(loginuser == null){ // loginuser -> leader
-            throw new NeedLoginException();
-        }
+
+        MemberEntity loginUser = findLoginUser(username);
 
         TeamDto.Request request = TeamDto.Request.builder()
                 .members(new ArrayList<>())
                 .teamname(teamRequestDto.getTeamname())
                 .description(teamRequestDto.getDescription())
-                .leaderId(loginuser.getId())
+                .leaderId(loginUser.getId())
                 .build();
 
         TeamEntity newTeam = request.toEntity();
@@ -65,10 +62,7 @@ public class TeamService {
     @Transactional
     public MemberDto.Response inviteMember(int teamId, int targetMemberId, String username) {
 
-        MemberEntity loginUser = memberRepository.findByUsername(username);
-        if (loginUser == null) { // loginuser -> leader
-            throw new NeedLoginException();
-        }
+       MemberEntity loginUser = findLoginUser(username);
 
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ILLEGAL_ARGUMENT));
@@ -101,5 +95,72 @@ public class TeamService {
         return new MemberDto.Response(targetMember); // 팀 정보 반환
     }
 
+
+
+    /**
+     * 팀 해체 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param 팀 생성 요청 DTO
+     *
+     */
+    @DeleteMapping("/api/teams/{teamId}")
+    public void 팀해체(){
+    }
+
+    /**
+     * 유저로부터 온 초대 요청 수락 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param
+     *
+     */
+    @PostMapping("/api/teams/{teamId}/accept/{memberId}")
+    public void 초대요청수락(){
+    }
+
+    /**
+     * 유저로부터 온 초대 요청 거절 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param
+     *
+     */
+    @PostMapping("/api/teams/{teamId}/reject/{memberId}")
+    public void 초대요청거절(){
+    }
+
+    /**
+     * 팀에서 멤버 강퇴 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param
+     *
+     */
+    @DeleteMapping("/api/teams/kick/{memberId}")
+    public void 멤버강퇴(){
+    }
+
+    /**
+     * 팀에서 탈퇴 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param
+     *
+     */
+    @DeleteMapping("/api/teams/leave/{memberId}")
+    public void 팀탈퇴(){
+    }
+
+
+
+    public MemberEntity findLoginUser(String username){
+        MemberEntity loginUser = memberRepository.findByUsername(username);
+        if(loginUser == null){ // loginuser -> leader
+            throw new NeedLoginException();
+        }
+
+        return loginUser;
+    }
 
 }
