@@ -4,5 +4,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import study.moum.auth.domain.entity.MemberEntity;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, Integer> {
-    Boolean existsByTeamAndMember(TeamEntity team, MemberEntity invitedMember);
 }

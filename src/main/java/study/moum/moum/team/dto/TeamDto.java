@@ -55,6 +55,23 @@ public class TeamDto {
                     .collect(Collectors.toList());
             this.createdAt = teamEntity.getCreatedAt();
         }
+    }
 
+    @Getter
+    @AllArgsConstructor
+    public static class UpdateResponse{
+        private final int teamId;
+        private final int leaderId;
+        private final String teamName;
+        private final String description;
+        private LocalDateTime createdAt;
+
+        public UpdateResponse(TeamEntity teamEntity){
+            this.teamId = teamEntity.getId();
+            this.leaderId = teamEntity.getLeaderId();
+            this.teamName = teamEntity.getTeamname();
+            this.description = teamEntity.getDescription();
+            this.createdAt = teamEntity.getCreatedAt();
+        }
     }
 }

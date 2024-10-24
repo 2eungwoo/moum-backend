@@ -12,10 +12,7 @@ import study.moum.auth.dto.MemberDto;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.NeedLoginException;
-import study.moum.moum.team.domain.TeamEntity;
-import study.moum.moum.team.domain.TeamMemberEntity;
-import study.moum.moum.team.domain.TeamMemberRepository;
-import study.moum.moum.team.domain.TeamRepository;
+import study.moum.moum.team.domain.*;
 import study.moum.moum.team.dto.TeamDto;
 
 import java.sql.Array;
@@ -29,11 +26,13 @@ public class TeamService {
     private final MemberRepository memberRepository;
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberRepositoryCustom teamMemberRepositoryCustom;
 
+    /**
+        팀 정보 조회
+     **/
     @Transactional(readOnly = true)
-    public TeamDto.Response getTeamById(String username, int teamId){
-
-       findLoginUser(username);
+    public TeamDto.Response getTeamById(int teamId){
 
         TeamEntity team = teamRepository.findById(teamId)
                 .orElseThrow(()-> new CustomException(ErrorCode.ILLEGAL_ARGUMENT));
@@ -41,10 +40,13 @@ public class TeamService {
         return new TeamDto.Response(team);
     }
 
+    /**
+     * 팀 생성
+     */
     @Transactional
     public TeamDto.Response createTeam(TeamDto.Request teamRequestDto, String username){
 
-        MemberEntity loginUser = findLoginUser(username);
+        MemberEntity loginUser = memberRepository.findByUsername(username);
 
         TeamDto.Request request = TeamDto.Request.builder()
                 .members(new ArrayList<>())
@@ -60,16 +62,17 @@ public class TeamService {
     }
 
 
+    /**
+     * 팀에 멤버 초대
+     */
     @Transactional
     public MemberDto.Response inviteMember(int teamId, int targetMemberId, String username) {
 
-       MemberEntity loginUser = findLoginUser(username);
-
-        TeamEntity team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new CustomException(ErrorCode.ILLEGAL_ARGUMENT));
+        MemberEntity loginUser = memberRepository.findByUsername(username);
+        TeamEntity team = findTeam(teamId);
 
         // 팀의 리더인지 확인
-        if (team.getLeaderId() != loginUser.getId()) {
+        if(!checkLeader(team, loginUser)){
             throw new CustomException(ErrorCode.NO_AUTHORITY);
         }
 
@@ -77,12 +80,10 @@ public class TeamService {
         MemberEntity targetMember = memberRepository.findById(targetMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_EXIST));
 
-        // 이미 팀 멤버인지 확인
-        boolean isAlreadyMember = teamMemberRepository.existsByTeamAndMember(team, targetMember);
-        if (isAlreadyMember) {
+        // 이미 팀 멤버면 에러
+        if(isTeamMember(teamId, targetMemberId)){
             throw new CustomException(ErrorCode.MEMBER_ALREADY_INVITED);
         }
-
 
         // 팀 멤버 초대 로직
         TeamMemberEntity teamMember = TeamMemberEntity.builder()
@@ -96,28 +97,108 @@ public class TeamService {
         return new MemberDto.Response(targetMember); // 팀 정보 반환
     }
 
+
     /**
-     * 팀 정보 수정 API
-     *
-     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
-     * @param 팀 ID
-     * @param 팀 생성 요청 DTO
+     * 팀 정보 수정 메소드
      */
-    @PatchMapping("/api/teams/{teamId}")
-    public void 팀정보수정(){
+    @Transactional
+    public TeamDto.UpdateResponse updateTeamInfo(int teamId, TeamDto.Request teamUpdateRequestDto, String username) {
+
+        MemberEntity leader = memberRepository.findByUsername(username);
+        findTeam(teamId);
+
+        TeamDto.Request request = TeamDto.Request.builder()
+                .leaderId(leader.getId())
+                .teamname(teamUpdateRequestDto.getTeamname())
+                .description(teamUpdateRequestDto.getDescription())
+                .build();
+
+        TeamEntity updatedTeam = request.toEntity();
+        teamRepository.save(updatedTeam);
+
+        return new TeamDto.UpdateResponse(updatedTeam);
+
+    }
+
+    /**
+     * 팀 해체(삭제) 메소드
+     */
+    @Transactional
+    public TeamDto.Response deleteTeamById(int teamId, String username) {
+        MemberEntity leader = memberRepository.findByUsername(username);
+        TeamEntity targetTeam = findTeam(teamId);
+
+        if(!checkLeader(targetTeam, leader)){
+            throw new CustomException(ErrorCode.NO_AUTHORITY);
+        }
+
+//        // 팀의 멤버 목록을 가져와서 각 멤버의 팀 리스트에서 해당 팀을 삭제
+//        for (TeamMemberEntity teamMember : targetTeam.getMembers()) {
+//            MemberEntity member = teamMember.getMember();
+//            member.removeTeamFromMember(targetTeam);
+//        }
+
+        teamRepository.deleteById(targetTeam.getId());
+
+        return new TeamDto.Response(targetTeam);
 
     }
 
 
     /**
-     * 팀 해체 API
-     *
-     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
-     * @param 팀 생성 요청 DTO
-     *
+     * 팀에서 멤버 강퇴 메소드
      */
-    @DeleteMapping("/api/teams/{teamId}")
-    public void 팀해체(){
+    @Transactional
+    public TeamDto.Response kickMemberById(int targetMemberId, int teamId) {
+
+        MemberEntity member = memberRepository.findById(targetMemberId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_EXIST));
+        TeamEntity team = findTeam(teamId);
+
+        // 리더 아니면 에러
+        if(!checkLeader(team,member)){
+            throw new CustomException(ErrorCode.NO_AUTHORITY);
+        }
+
+        // 강퇴 대상 멤버 찾기
+        if(!isMemberExist(targetMemberId)){
+            throw new CustomException(ErrorCode.MEMBER_NOT_EXIST);
+        }
+
+        // 팀 멤버가 아니면 에러
+        if(!isTeamMember(teamId, targetMemberId)){
+            throw new CustomException(ErrorCode.NOT_TEAM_MEMBER);
+        }
+
+        teamMemberRepositoryCustom.deleteMemberFromTeamById(teamId, targetMemberId);
+        //team.removeMemberFromTeam(member); // 팀의 멤버 리스트에서 멤버 삭제
+        //member.removeTeamFromMember(team); // 멤버의 팀 리스트에서 팀 삭제
+        //teamRepository.save(team);
+
+        return new TeamDto.Response(team);
+    }
+
+    /**
+     * 팀에서 탈퇴 메소드
+     */
+    @Transactional
+    public TeamDto.Response leaveTeam(int teamId, String username) {
+        MemberEntity member = memberRepository.findByUsername(username);
+        TeamEntity team = findTeam(teamId);
+
+        if(checkLeader(team, member)){
+            throw new CustomException(ErrorCode.LEADER_CANNOT_LEAVE);
+        }
+
+        if(!isTeamMember(teamId, member.getId())){
+            throw new CustomException(ErrorCode.NOT_TEAM_MEMBER);
+        }
+
+        teamMemberRepositoryCustom.deleteMemberFromTeamById(teamId, member.getId());
+        //team.removeMemberFromTeam(member); // 팀의 멤버 리스트에서 멤버 삭제
+        //member.removeTeamFromMember(team); // 멤버의 팀 리스트에서 팀 삭제
+
+        return new TeamDto.Response(team);
     }
 
 
@@ -128,7 +209,7 @@ public class TeamService {
      * @param
      *
      */
-    @PostMapping("/api/teams/{teamId}/accept/{memberId}")
+    @Transactional
     public void 초대요청수락(){
     }
 
@@ -140,43 +221,46 @@ public class TeamService {
      * @param
      *
      */
-    @PostMapping("/api/teams/{teamId}/reject/{memberId}")
+    @Transactional
     public void 초대요청거절(){
     }
 
+    public TeamEntity findTeam(int teamId){
+        TeamEntity team = teamRepository.findById(teamId)
+                .orElseThrow(()-> new CustomException(ErrorCode.TEAM_NOT_FOUND));
 
-    /**
-     * 팀에서 멤버 강퇴 API
-     *
-     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
-     * @param
-     *
-     */
-    @DeleteMapping("/api/teams/kick/{memberId}")
-    public void 멤버강퇴(){
+        return team;
     }
 
-
-    /**
-     * 팀에서 탈퇴 API
-     *
-     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
-     * @param
-     *
-     */
-    @DeleteMapping("/api/teams/leave/{memberId}")
-    public void 팀탈퇴(){
-    }
-
-
-
-    public MemberEntity findLoginUser(String username){
-        MemberEntity loginUser = memberRepository.findByUsername(username);
-        if(loginUser == null){ // loginuser -> leader
-            throw new NeedLoginException();
+    public Boolean checkLeader(TeamEntity team, MemberEntity loginUser){
+        if (team.getLeaderId() != loginUser.getId()) {
+            return false;
         }
 
-        return loginUser;
+        return true;
     }
 
+    public Boolean isTeamMember(int teamId, int memberId){
+        boolean isAlreadyMember = teamMemberRepositoryCustom.existsByTeamAndMember(teamId, memberId);
+        if (isAlreadyMember) {
+            return true;
+        }
+        return false;
+    }
+
+    public Boolean isMemberExist(String username) {
+        MemberEntity member = memberRepository.findByUsername(username);
+        if(member == null){
+            return false;
+        }
+        return true;
+    }
+
+    public Boolean isMemberExist(int memberId) {
+        Boolean member = memberRepository.findById(memberId).isPresent();
+        if(!member){
+            return false;
+        }
+        return true;
+    }
 }

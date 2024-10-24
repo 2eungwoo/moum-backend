@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import study.moum.community.article.domain.article.ArticleEntity;
 import study.moum.community.likes.domain.LikesEntity;
+import study.moum.moum.team.domain.TeamEntity;
 import study.moum.moum.team.domain.TeamMemberEntity;
 
 import java.util.ArrayList;
@@ -44,11 +45,17 @@ public class MemberEntity { // todo : userdetails implement 여기다가 + db co
     @Column(name = "email", nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamMemberEntity> teams = new ArrayList<>();
 
     // role은 회원가입 시 입력하게 할지?
     // admin, 일반사용자, 일반사용자중에서도 연주자,참여자 뭐 이런거 등등..
     @Column(name = "role", nullable = false)
     private String role;
+
+//    // todo : 의문점있음. 메소드 내의 로직은 필수로 들어가야할까? 레포지토리쪽에서 검증하고 삭제 처리한건데도? -> TeamEntity와 동일
+//    public void removeTeamFromMember(TeamEntity team) {
+//        teams.remove(team);
+//    }
+
 }

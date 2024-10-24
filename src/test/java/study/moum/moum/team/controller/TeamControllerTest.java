@@ -131,7 +131,7 @@ class TeamControllerTest {
         TeamDto.Response response = new TeamDto.Response(team);
 
         // when
-        when(teamService.getTeamById(member.getUsername(),team.getId())).thenReturn(response);
+        when(teamService.getTeamById(team.getId())).thenReturn(response);
 
         // then
         mockMvc.perform(MockMvcRequestBuilders.get("/api/teams/1")

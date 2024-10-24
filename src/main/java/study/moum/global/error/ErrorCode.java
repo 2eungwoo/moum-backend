@@ -50,7 +50,10 @@ public enum ErrorCode {
     CANNOT_DELETE_OTHERS_LIKES(409, "L004","본인이 등록한 좋아요만 취소할 수 있습니다."),
 
     // Team
-    MEMBER_ALREADY_INVITED(400, "T001", "이미 초대된 멤버입니다.");
+    MEMBER_ALREADY_INVITED(400, "T001", "이미 초대된 멤버입니다."),
+    TEAM_NOT_FOUND(404, "T002", "팀을 찾을 수 없습니다."),
+    NOT_TEAM_MEMBER(404, "T003", "팀에 속한 멤버가 아닙니다."),
+    LEADER_CANNOT_LEAVE(401, "T004", "리더가 팀을 떠날 수 없습니다.");
 
 
     private final int status;

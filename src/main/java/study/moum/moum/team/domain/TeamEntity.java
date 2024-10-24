@@ -31,7 +31,7 @@ public class TeamEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamMemberEntity> members = new ArrayList<>();
 
     @Column(name = "created_at")
@@ -42,4 +42,21 @@ public class TeamEntity {
         this.createdAt = LocalDateTime.now();
     }
 
+//    // todo : 의문점있음. 메소드 내의 로직은 필수로 들어가야할까? 레포지토리쪽에서 검증하고 삭제 처리한건데도?
+//    public void removeMemberFromTeam(MemberEntity member) {
+//        members.remove(member);
+////        TeamMemberEntity targetMember = null;
+////
+////        for (TeamMemberEntity teamMember : members) {
+////            if (teamMember.getMember().getId() == member.getId()) {
+////                targetMember = teamMember;
+////                break;
+////            }
+////        }
+////
+////        // 멤버를 찾았다면 삭제
+////        if (targetMember != null) {
+////            members.remove(targetMember);
+////        }
+//    }
 }

@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Getter
-@Setter
 @Table(name = "team_member")
 public class TeamMemberEntity {
     @Id

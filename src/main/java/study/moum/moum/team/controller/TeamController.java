@@ -8,7 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import study.moum.auth.domain.CustomUserDetails;
+import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.dto.MemberDto;
+import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.response.ResponseCode;
 import study.moum.global.response.ResultResponse;
 import study.moum.moum.team.dto.TeamDto;
@@ -31,7 +33,8 @@ public class TeamController {
     public ResponseEntity<ResultResponse> getTeamById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                       @PathVariable int teamId){
 
-        TeamDto.Response teamResponseDto = teamService.getTeamById(customUserDetails.getUsername(), teamId);
+        loginCheck(customUserDetails.getUsername());
+        TeamDto.Response teamResponseDto = teamService.getTeamById(teamId);
         ResultResponse response = new ResultResponse(ResponseCode.GET_TEAM_SUCCESS, teamResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
@@ -47,7 +50,8 @@ public class TeamController {
     public ResponseEntity<ResultResponse> createTeam(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                      @Valid @RequestBody TeamDto.Request teamRequestDto){
 
-        TeamDto.Response teamResponseDto = teamService.createTeam(teamRequestDto, customUserDetails.getUsername());
+        String loginUserName = loginCheck(customUserDetails.getUsername());
+        TeamDto.Response teamResponseDto = teamService.createTeam(teamRequestDto, loginUserName);
         ResultResponse response = new ResultResponse(ResponseCode.CREATE_TEAM_SUCCESS, teamResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
@@ -79,7 +83,8 @@ public class TeamController {
                                                        @PathVariable int teamId,
                                                        @PathVariable int memberId) {
 
-        MemberDto.Response teamResponseDto = teamService.inviteMember(teamId, memberId, customUserDetails.getUsername());
+        String loginUserName = loginCheck(customUserDetails.getUsername());
+        MemberDto.Response teamResponseDto = teamService.inviteMember(teamId, memberId, loginUserName);
         ResultResponse response = new ResultResponse(ResponseCode.INVITE_MEMBER_SUCCESS, teamResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
@@ -148,6 +153,14 @@ public class TeamController {
      */
     @PatchMapping("/api/teams/change-leader/{memberId}")
     public void 팀리더넘기기(){
+    }
+
+    public String loginCheck(String username){
+        if(username == null){
+            throw new NeedLoginException();
+        }
+
+        return username;
     }
 
 }
