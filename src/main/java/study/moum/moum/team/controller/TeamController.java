@@ -84,8 +84,8 @@ public class TeamController {
                                                        @PathVariable int memberId) {
 
         String loginUserName = loginCheck(customUserDetails.getUsername());
-        MemberDto.Response teamResponseDto = teamService.inviteMember(teamId, memberId, loginUserName);
-        ResultResponse response = new ResultResponse(ResponseCode.INVITE_MEMBER_SUCCESS, teamResponseDto);
+        MemberDto.Response memberResponseDto = teamService.inviteMember(teamId, memberId, loginUserName);
+        ResultResponse response = new ResultResponse(ResponseCode.INVITE_MEMBER_SUCCESS, memberResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -93,11 +93,17 @@ public class TeamController {
      * 팀 해체 API
      *
      * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
-     * @param 팀 생성 요청 DTO
+     * @param 삭제할 팀 ID
      *
      */
     @DeleteMapping("/api/teams/{teamId}")
-    public void 팀해체(){
+    public ResponseEntity<ResultResponse> deleteTeamById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                               @PathVariable int teamId){
+
+        String loginUserName = loginCheck(customUserDetails.getUsername());
+        TeamDto.Response teamResponseDto = teamService.deleteTeamById(teamId, loginUserName);
+        ResultResponse response = new ResultResponse(ResponseCode.DELETE_TEAM_SUCCESS, teamResponseDto);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
     /**

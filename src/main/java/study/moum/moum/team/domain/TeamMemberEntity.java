@@ -18,8 +18,6 @@ public class TeamMemberEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String name;
-
     @ManyToOne
     @JoinColumn(name = "member_id")
     private MemberEntity member;

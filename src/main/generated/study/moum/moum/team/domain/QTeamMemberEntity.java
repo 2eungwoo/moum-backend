@@ -26,8 +26,6 @@ public class QTeamMemberEntity extends EntityPathBase<TeamMemberEntity> {
 
     public final study.moum.auth.domain.entity.QMemberEntity member;
 
-    public final StringPath name = createString("name");
-
     public final QTeamEntity team;
 
     public QTeamMemberEntity(String variable) {

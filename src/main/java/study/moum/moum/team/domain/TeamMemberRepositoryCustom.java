@@ -78,4 +78,19 @@ public class TeamMemberRepositoryCustom {
                 .where(teamMemberEntity.team.id.eq(teamId))
                 .fetch();
     }
+
+    /**
+     * delete from team_member
+     * where team_id =:teamId
+     */
+    public void deleteTeamMemberTable(int teamId){
+        long deletedCount = jpaQueryFactory
+                .delete(teamMemberEntity)
+                .where(teamMemberEntity.team.id.eq(teamId))
+                .execute();
+
+        if (deletedCount == 0) {
+            throw new CustomException(ErrorCode.ILLEGAL_ARGUMENT);
+        }
+    }
 }

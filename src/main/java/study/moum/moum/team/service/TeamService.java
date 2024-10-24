@@ -58,6 +58,13 @@ public class TeamService {
         TeamEntity newTeam = request.toEntity();
         teamRepository.save(newTeam);
 
+        TeamMemberEntity teamMember = TeamMemberEntity.builder()
+                .team(newTeam)
+                .member(loginUser)
+                .build();
+
+        teamMemberRepository.save(teamMember);
+
         return new TeamDto.Response(newTeam);
     }
 
@@ -87,8 +94,8 @@ public class TeamService {
 
         // 팀 멤버 초대 로직
         TeamMemberEntity teamMember = TeamMemberEntity.builder()
-                .member(targetMember) // MemberEntity 설정
-                .team(team) // TeamEntity 설정
+                .member(targetMember)
+                .team(team)
                 .build();
 
         // 팀 멤버 저장
@@ -138,7 +145,8 @@ public class TeamService {
 //            member.removeTeamFromMember(targetTeam);
 //        }
 
-        teamRepository.deleteById(targetTeam.getId());
+        teamRepository.deleteById(teamId);
+        teamMemberRepositoryCustom.deleteTeamMemberTable(teamId);
 
         return new TeamDto.Response(targetTeam);
 

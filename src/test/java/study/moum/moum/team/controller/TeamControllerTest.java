@@ -220,6 +220,23 @@ class TeamControllerTest {
     @DisplayName("팀 삭제 테스트")
     @WithAuthUser
     void delete_team_success() throws Exception{
+        // given
+        int teamId = team.getId();
+        String leaderName = leader.getUsername();
+        TeamEntity targetTeam = team;
+
+        TeamDto.Response response = new TeamDto.Response(targetTeam);
+
+        // when
+        when(teamService.deleteTeamById(teamId,leaderName)).thenReturn(response);
+
+        // then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/teams/{teamId}", teamId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(jsonPath("$.status").value(200))
+                .andExpect(jsonPath("$.message").value(ResponseCode.DELETE_TEAM_SUCCESS.getMessage()))
+                .andExpect(jsonPath("$.data.leaderId").value(leader.getId()));
 
     }
 
