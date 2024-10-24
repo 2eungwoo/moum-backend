@@ -52,6 +52,18 @@ public class TeamController {
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
+    /**
+     * 팀 정보 수정 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param 팀 ID
+     * @param 팀 생성 요청 DTO
+     */
+    @PatchMapping("/api/teams/{teamId}")
+    public void 팀정보수정(){
+
+    }
+
 
     // todo : 멤버 초대하기 -> 알람발송, 팀 가입요청 수락 -> 가입성공 으로 로직 변경
     /**
@@ -125,6 +137,17 @@ public class TeamController {
      */
     @DeleteMapping("/api/teams/leave/{memberId}")
     public void 팀탈퇴(){
+    }
+
+    /**
+     * 팀 리더 양도 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param
+     *
+     */
+    @PatchMapping("/api/teams/change-leader/{memberId}")
+    public void 팀리더넘기기(){
     }
 
 }

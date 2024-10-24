@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
@@ -95,6 +96,17 @@ public class TeamService {
         return new MemberDto.Response(targetMember); // 팀 정보 반환
     }
 
+    /**
+     * 팀 정보 수정 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param 팀 ID
+     * @param 팀 생성 요청 DTO
+     */
+    @PatchMapping("/api/teams/{teamId}")
+    public void 팀정보수정(){
+
+    }
 
 
     /**
@@ -108,6 +120,7 @@ public class TeamService {
     public void 팀해체(){
     }
 
+
     /**
      * 유저로부터 온 초대 요청 수락 API
      *
@@ -118,6 +131,7 @@ public class TeamService {
     @PostMapping("/api/teams/{teamId}/accept/{memberId}")
     public void 초대요청수락(){
     }
+
 
     /**
      * 유저로부터 온 초대 요청 거절 API
@@ -130,6 +144,7 @@ public class TeamService {
     public void 초대요청거절(){
     }
 
+
     /**
      * 팀에서 멤버 강퇴 API
      *
@@ -140,6 +155,7 @@ public class TeamService {
     @DeleteMapping("/api/teams/kick/{memberId}")
     public void 멤버강퇴(){
     }
+
 
     /**
      * 팀에서 탈퇴 API
