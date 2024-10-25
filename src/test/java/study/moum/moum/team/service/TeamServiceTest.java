@@ -51,6 +51,7 @@ class TeamServiceTest {
     private MemberEntity mockLeader;
     private MemberEntity mockMember;
     private TeamEntity mockTeam;
+    private TeamMemberEntity mockTeamMember;
 
     @BeforeEach
     void setUp() {
@@ -59,11 +60,13 @@ class TeamServiceTest {
         mockLeader = MemberEntity.builder()
                 .id(1)
                 .username("leader")
+                .teams(new ArrayList<>())
                 .build();
 
         mockMember = MemberEntity.builder()
                 .id(2)
                 .username("member")
+                .teams(new ArrayList<>())
                 .build();
 
         mockTeam = TeamEntity.builder()
@@ -72,6 +75,12 @@ class TeamServiceTest {
                 .teamname("Test Team")
                 .description("Team Description")
                 .members(new ArrayList<>())
+                .build();
+
+        mockTeamMember = TeamMemberEntity.builder()
+                .id(1)
+                .team(mockTeam)
+                .member(mockMember)
                 .build();
     }
 
@@ -271,13 +280,16 @@ class TeamServiceTest {
 //        when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
 //        when(teamMemberRepositoryCustom.existsByTeamAndMember(mockTeam.getId(), mockMember.getId())).thenReturn(true);
 //        doReturn(true).when(teamService).checkLeader(any(), any());
+//        when(teamMemberRepositoryCustom.findMemberInTeamById(anyInt(), anyInt())).thenReturn(mockTeamMember);
 //
 //        // when
 //        TeamDto.Response response = teamService.kickMemberById(mockMember.getId(), mockTeam.getId());
 //
 //        // then
 //        assertThat(response.getMembers().size()).isEqualTo(0);
-
+//        verify(teamMemberRepositoryCustom).deleteMemberFromTeamById(anyInt(), anyInt());
+//        verify(teamRepository).save(mockTeam);
+//        verify(memberRepository).save(mockMember);
     }
 
     @Test
@@ -351,6 +363,7 @@ class TeamServiceTest {
         when(memberRepository.findByUsername(mockLeader.getUsername())).thenReturn(mockLeader);
         when(memberRepository.findByUsername(mockMember.getUsername())).thenReturn(mockMember);
         when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
+        when(teamMemberRepositoryCustom.findMemberInTeamById(anyInt(), anyInt())).thenReturn(mockTeamMember);
 
         doReturn(false).when(teamService).checkLeader(any(), any());
         doReturn(true).when(teamService).isTeamMember(anyInt(), anyInt());
@@ -360,6 +373,9 @@ class TeamServiceTest {
 
         // then
         assertThat(response.getTeamName()).isEqualTo(mockTeam.getTeamname());
+        verify(teamMemberRepositoryCustom).deleteMemberFromTeamById(anyInt(), anyInt());
+        verify(teamRepository).save(mockTeam);
+        verify(memberRepository).save(mockMember);
     }
 
     @Test
