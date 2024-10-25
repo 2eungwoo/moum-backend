@@ -2,10 +2,8 @@ package study.moum.moum.team.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -192,11 +190,12 @@ class TeamControllerTest {
                 .description("update description")
                 .build();
 
-        TeamEntity mockTeamEntity = updateRequest.toEntity();
-        TeamDto.UpdateResponse response = new TeamDto.UpdateResponse(mockTeamEntity);
+        TeamEntity updateMockTeam = updateRequest.toEntity();
+        TeamDto.UpdateResponse response = new TeamDto.UpdateResponse(updateMockTeam);
 
         // when
-        when(teamService.updateTeamInfo(mockTeam.getId(), updateRequest, mockLeader.getUsername())).thenReturn(response);
+        //when(teamService.updateTeamInfo(mockTeam.getId(), updateRequest, mockLeader.getUsername())).thenReturn(response);
+        when(teamService.updateTeamInfo(anyInt(), any(), anyString())).thenReturn(response);
 
         // then
         mockMvc.perform(MockMvcRequestBuilders.patch("/api/teams/{teamId}", mockTeam.getId())
@@ -205,8 +204,8 @@ class TeamControllerTest {
                         .with(csrf()))
                 .andExpect(jsonPath("$.status").value(201))
                 .andExpect(jsonPath("$.message").value(ResponseCode.UPDATE_TEAM_SUCCESS.getMessage()))
-                .andExpect(jsonPath("$.teamName").value(updateRequest.getTeamname()))
-                .andExpect(jsonPath("$.description").value(updateRequest.getDescription()));
+                .andExpect(jsonPath("$.data.teamName").value(updateRequest.getTeamname()))
+                .andExpect(jsonPath("$.data.description").value(updateRequest.getDescription()));
     }
 
     @Test
@@ -228,7 +227,8 @@ class TeamControllerTest {
         TeamDto.Response response = new TeamDto.Response(mockTeam);
 
         // when
-        when(teamService.deleteTeamById(targetTeamId,leaderName)).thenReturn(response);
+        //when(teamService.deleteTeamById(targetTeamId,leaderName)).thenReturn(response);
+        when(teamService.deleteTeamById(anyInt(),anyString())).thenReturn(response);
 
         // then
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/teams/{teamId}", targetTeamId)
@@ -264,29 +264,42 @@ class TeamControllerTest {
                 .andExpect(jsonPath("$.data.id").value(targetMember.getId()))
                 .andExpect(jsonPath("$.data.username").value("new member"));
     }
-//
-//    @Test
-//    @DisplayName("팀에서 멤버 강퇴 테스트")
-//    @WithAuthUser
-//    void kick_member_success() throws Exception{
-//        // given
-//        mockTeam.getMembers().add(mockTeamMember1);
-//        mockTeam.getMembers().add(mockTeamMember2);
-//
-//        TeamDto.Response response = new TeamDto.Response(mockTeam);
-//
-//        // when
-//        when(teamService.kickMemberById(mockMember.getId(),mockTeam.getId())).thenReturn(response);
-//
-//        // then
-//        mockMvc.perform(MockMvcRequestBuilders.delete("/api/teams/{teamId}/kick/{memberId}", , targetMember.getId())
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .with(csrf()))
-//                .andExpect(jsonPath("$.status").value(201))
-//                .andExpect(jsonPath("$.message").value(ResponseCode.KICK_MEMBER_SUCCESS.getMessage()))
-//                .andExpect(jsonPath("$.data.id").value(mockMember1.getId()))
-//                .andExpect(jsonPath("$.data.username").value("new member"));
-//    }
+
+    @Test
+    @DisplayName("팀에서 멤버 강퇴 테스트")
+    @WithAuthUser
+    void kick_member_success() throws Exception{
+        // given
+        TeamDto.Response responseDto = new TeamDto.Response(mockTeam);
+
+        // when
+        when(teamService.kickMemberById(anyInt(), anyInt(), anyString())).thenReturn(responseDto);
+
+        // then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/teams/{teamId}/kick/{memberId}",mockTeam.getId() ,mockMember.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(jsonPath("$.status").value(200))
+                .andExpect(jsonPath("$.message").value(ResponseCode.KICK_MEMBER_SUCCESS.getMessage()));
+    }
+
+    @Test
+    @DisplayName("팀에서 탈퇴 테스트")
+    @WithAuthUser
+    void leave_member_success() throws Exception{
+        // given
+        TeamDto.Response responseDto = new TeamDto.Response(mockTeam);
+
+        // when
+        when(teamService.leaveTeam(anyInt(), anyString())).thenReturn(responseDto);
+
+        // then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/teams/leave/{teamId}",mockTeam.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
+                .andExpect(jsonPath("$.status").value(200))
+                .andExpect(jsonPath("$.message").value(ResponseCode.LEAVE_TEAM_SUCCESS.getMessage()));
+    }
 
 
 

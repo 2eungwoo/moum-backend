@@ -23,6 +23,7 @@ public enum ResponseCode {
     GET_MY_TEAM_LIST_SUCCESS(200, "T007", "내 팀 리스트 조회 성공"),
     INVITE_MEMBER_SUCCESS(201, "T008", "멤버를 팀에 초대했습니다."),
     KICK_MEMBER_SUCCESS(200, "T009", "멤버를 팀에서 강퇴하였습니다."),
+    LEAVE_TEAM_SUCCESS(200,"T010","팀에서 탈퇴했습니다."),
 
     // Article
     ARTICLE_LIST_GET_SUCCESS(200,"A001","게시글 목록 조회 성공."),

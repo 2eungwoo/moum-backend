@@ -37,7 +37,7 @@ public class TeamController {
 
         loginCheck(customUserDetails.getUsername());
         TeamDto.Response teamResponseDto = teamService.getTeamById(teamId);
-        ResultResponse response = new ResultResponse(ResponseCode.GET_TEAM_SUCCESS, teamResponseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.GET_TEAM_SUCCESS, teamResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -56,7 +56,7 @@ public class TeamController {
 
         loginCheck(customUserDetails.getUsername());
         List<TeamDto.Response> teamListResponseDto = teamService.getTeamList(page, size);
-        ResultResponse response = new ResultResponse(ResponseCode.GET_TEAM_LIST_SUCCESS, teamListResponseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.GET_TEAM_LIST_SUCCESS, teamListResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -73,7 +73,7 @@ public class TeamController {
 
         String loginUserName = loginCheck(customUserDetails.getUsername());
         TeamDto.Response teamResponseDto = teamService.createTeam(teamRequestDto, loginUserName);
-        ResultResponse response = new ResultResponse(ResponseCode.CREATE_TEAM_SUCCESS, teamResponseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.CREATE_TEAM_SUCCESS, teamResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -86,11 +86,12 @@ public class TeamController {
      */
     @PatchMapping("/api/teams/{teamId}")
     public ResponseEntity<ResultResponse> updateTeam(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable int teamId, @RequestBody TeamDto.UpdateRequest updateRequestDto){
+                                                     @PathVariable int teamId,
+                                                     @RequestBody TeamDto.UpdateRequest updateRequestDto){
 
         String loginUserName = loginCheck(customUserDetails.getUsername());
         TeamDto.UpdateResponse responseDto = teamService.updateTeamInfo(teamId,updateRequestDto,loginUserName);
-        ResultResponse response = new ResultResponse(ResponseCode.UPDATE_TEAM_SUCCESS, responseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.UPDATE_TEAM_SUCCESS, responseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
 
     }
@@ -112,7 +113,7 @@ public class TeamController {
 
         String loginUserName = loginCheck(customUserDetails.getUsername());
         MemberDto.Response memberResponseDto = teamService.inviteMember(teamId, memberId, loginUserName);
-        ResultResponse response = new ResultResponse(ResponseCode.INVITE_MEMBER_SUCCESS, memberResponseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.INVITE_MEMBER_SUCCESS, memberResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -129,7 +130,7 @@ public class TeamController {
 
         String loginUserName = loginCheck(customUserDetails.getUsername());
         TeamDto.Response teamResponseDto = teamService.deleteTeamById(teamId, loginUserName);
-        ResultResponse response = new ResultResponse(ResponseCode.DELETE_TEAM_SUCCESS, teamResponseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.DELETE_TEAM_SUCCESS, teamResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -169,7 +170,7 @@ public class TeamController {
 
         String loginUserName = loginCheck(customUserDetails.getUsername());
         TeamDto.Response responseDto = teamService.kickMemberById(memberId, teamId,loginUserName);
-        ResultResponse response = new ResultResponse(ResponseCode.KICK_MEMBER_SUCCESS, responseDto);
+        ResultResponse response = ResultResponse.of(ResponseCode.KICK_MEMBER_SUCCESS, responseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -180,8 +181,14 @@ public class TeamController {
      * @param
      *
      */
-    @DeleteMapping("/api/teams/leave/{memberId}")
-    public void 팀탈퇴(){
+    @DeleteMapping("/api/teams/leave/{teamId}")
+    public ResponseEntity<ResultResponse> leaveTeam(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                          @PathVariable int teamId){
+
+        String loginUserName = loginCheck(customUserDetails.getUsername());
+        TeamDto.Response responseDto = teamService.leaveTeam(teamId, loginUserName);
+        ResultResponse response = ResultResponse.of(ResponseCode.LEAVE_TEAM_SUCCESS, responseDto);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
     /**
