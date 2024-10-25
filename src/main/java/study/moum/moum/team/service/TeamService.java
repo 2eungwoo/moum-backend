@@ -236,10 +236,18 @@ public class TeamService {
             throw new CustomException(ErrorCode.NOT_TEAM_MEMBER);
         }
 
-        teamMemberRepositoryCustom.deleteMemberFromTeamById(teamId, member.getId());
-        //team.removeMemberFromTeam(member); // 팀의 멤버 리스트에서 멤버 삭제
-        //member.removeTeamFromMember(team); // 멤버의 팀 리스트에서 팀 삭제
 
+        TeamMemberEntity teamMember = teamMemberRepositoryCustom.findMemberInTeamById(teamId, member.getId());
+
+        // 팀에서 멤버 제거
+        team.removeMemberFromTeam(teamMember);
+        // 멤버에서 팀 제거
+        member.removeTeamFromMember(team);
+
+
+        teamMemberRepositoryCustom.deleteMemberFromTeamById(teamId, member.getId());
+        teamRepository.save(team);
+        memberRepository.save(member);
         return new TeamDto.Response(team);
     }
 
