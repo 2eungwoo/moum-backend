@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import study.moum.auth.domain.entity.Address;
 import study.moum.auth.domain.entity.MemberEntity;
 
 public class MemberDto {
@@ -30,6 +31,9 @@ public class MemberDto {
 
         private String verifyCode;
 
+        // todo : 필수항목으로 바꿀거임
+        private Address address;
+
         // private String verifyCode;
 
         public MemberEntity toEntity(){
@@ -38,6 +42,7 @@ public class MemberDto {
                     .username(username)
                     .email(email)
                     .password(password)
+                    .address(address)
                     .build();
         }
     }

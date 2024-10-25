@@ -53,6 +53,10 @@ public class MemberEntity { // todo : userdetails implement 여기다가 + db co
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Embedded
+    // todo : 필수항목으로 바꿀거임
+    private Address address;
+
     public void removeTeamFromMember(TeamEntity team) {
         teams.removeIf(teamMemberEntity -> teamMemberEntity.getTeam().equals(team));
     }

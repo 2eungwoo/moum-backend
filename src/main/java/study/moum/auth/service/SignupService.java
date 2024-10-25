@@ -32,6 +32,7 @@ public class SignupService {
                 .email(memberRequestDto.getEmail())
                 .role("ROLE_ADMIN")
                 .password(bCryptPasswordEncoder.encode(memberRequestDto.getPassword()))
+                .address(memberRequestDto.getAddress())
                 .build();
 
         // 인증 코드 검증
