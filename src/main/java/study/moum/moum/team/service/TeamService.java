@@ -1,6 +1,7 @@
 package study.moum.moum.team.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.auth.dto.MemberDto;
+import study.moum.community.article.domain.article.ArticleEntity;
+import study.moum.community.article.dto.ArticleDto;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.NeedLoginException;
@@ -18,6 +21,7 @@ import study.moum.moum.team.dto.TeamDto;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +42,21 @@ public class TeamService {
                 .orElseThrow(()-> new CustomException(ErrorCode.ILLEGAL_ARGUMENT));
 
         return new TeamDto.Response(team);
+    }
+
+    /**
+        팀 리스트 조회
+     **/
+    @Transactional(readOnly = true)
+    public List<TeamDto.Response> getTeamList(int page, int size){
+
+        List<TeamEntity> teams = teamRepository.findAll(PageRequest.of(page, size)).getContent();
+
+        List<TeamDto.Response> teamsList = teams.stream()
+                .map(TeamDto.Response::new)
+                .collect(Collectors.toList());
+
+        return teamsList;
     }
 
     /**
@@ -109,13 +128,16 @@ public class TeamService {
      * 팀 정보 수정 메소드
      */
     @Transactional
-    public TeamDto.UpdateResponse updateTeamInfo(int teamId, TeamDto.Request teamUpdateRequestDto, String username) {
+    public TeamDto.UpdateResponse updateTeamInfo(int teamId, TeamDto.UpdateRequest teamUpdateRequestDto, String username) {
 
         MemberEntity leader = memberRepository.findByUsername(username);
-        findTeam(teamId);
+        TeamEntity team = findTeam(teamId);
 
-        TeamDto.Request request = TeamDto.Request.builder()
-                .leaderId(leader.getId())
+        if(!checkLeader(team, leader)){
+            throw new CustomException(ErrorCode.NO_AUTHORITY);
+        }
+
+        TeamDto.UpdateRequest request = TeamDto.UpdateRequest.builder()
                 .teamname(teamUpdateRequestDto.getTeamname())
                 .description(teamUpdateRequestDto.getDescription())
                 .build();
@@ -156,15 +178,19 @@ public class TeamService {
     /**
      * 팀에서 멤버 강퇴 메소드
      */
+    // todo : 버그해결. 테스트필요
+    // todo : 요청을 보내면, 리더가 아니면 에러가남 -> 리더인 멤버만 강퇴 가능해지는 버그. 타겟멤버랑 로그인멤버 구분 필요
     @Transactional
-    public TeamDto.Response kickMemberById(int targetMemberId, int teamId) {
+    public TeamDto.Response kickMemberById(int targetMemberId, int teamId, String username) {
 
-        MemberEntity member = memberRepository.findById(targetMemberId)
+        // 타겟멤버
+        MemberEntity targetMember = memberRepository.findById(targetMemberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_EXIST));
         TeamEntity team = findTeam(teamId);
 
-        // 리더 아니면 에러
-        if(!checkLeader(team,member)){
+        MemberEntity leader = memberRepository.findByUsername(username);
+        // 로그인 유저가 리더 아니면 에러. 대상이 리더가 아니라.
+        if(!checkLeader(team,leader)){
             throw new CustomException(ErrorCode.NO_AUTHORITY);
         }
 
@@ -178,10 +204,18 @@ public class TeamService {
             throw new CustomException(ErrorCode.NOT_TEAM_MEMBER);
         }
 
+        // 강퇴 대상 멤버가 팀의 멤버인지 확인
+        TeamMemberEntity teamMember = teamMemberRepositoryCustom.findMemberInTeamById(teamId, targetMemberId);
+
+        // 팀에서 멤버 제거
+        team.removeMemberFromTeam(teamMember);
+        // 멤버에서 팀 제거
+        targetMember.removeTeamFromMember(team);
+
+
         teamMemberRepositoryCustom.deleteMemberFromTeamById(teamId, targetMemberId);
-        //team.removeMemberFromTeam(member); // 팀의 멤버 리스트에서 멤버 삭제
-        //member.removeTeamFromMember(team); // 멤버의 팀 리스트에서 팀 삭제
-        //teamRepository.save(team);
+        teamRepository.save(team);
+        memberRepository.save(targetMember);
 
         return new TeamDto.Response(team);
     }

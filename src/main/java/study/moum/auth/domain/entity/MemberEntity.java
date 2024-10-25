@@ -53,9 +53,8 @@ public class MemberEntity { // todo : userdetails implement 여기다가 + db co
     @Column(name = "role", nullable = false)
     private String role;
 
-//    // todo : 의문점있음. 메소드 내의 로직은 필수로 들어가야할까? 레포지토리쪽에서 검증하고 삭제 처리한건데도? -> TeamEntity와 동일
-//    public void removeTeamFromMember(TeamEntity team) {
-//        teams.remove(team);
-//    }
+    public void removeTeamFromMember(TeamEntity team) {
+        teams.removeIf(teamMemberEntity -> teamMemberEntity.getTeam().equals(team));
+    }
 
 }

@@ -58,9 +58,9 @@ public class TeamMemberRepositoryCustom {
         from team_member
         where team_id =:teamId and member_id =:memberId
      **/
-    public MemberEntity findMemberInTeamById(int teamId, int memberId) {
+    public TeamMemberEntity findMemberInTeamById(int teamId, int memberId) {
         return jpaQueryFactory
-                .select(teamMemberEntity.member)
+                .select(teamMemberEntity)
                 .from(teamMemberEntity)
                 .where(teamMemberEntity.team.id.eq(teamId).and(teamMemberEntity.member.id.eq(memberId)))
                 .fetchOne();

@@ -16,6 +16,8 @@ import study.moum.global.response.ResultResponse;
 import study.moum.moum.team.dto.TeamDto;
 import study.moum.moum.team.service.TeamService;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class TeamController {
@@ -36,6 +38,25 @@ public class TeamController {
         loginCheck(customUserDetails.getUsername());
         TeamDto.Response teamResponseDto = teamService.getTeamById(teamId);
         ResultResponse response = new ResultResponse(ResponseCode.GET_TEAM_SUCCESS, teamResponseDto);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+    }
+
+
+    /**
+     * 팀 목록 조회 API
+     *
+     * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
+     * @param 팀 ID
+     *
+     */
+    @GetMapping("/api/teams-all")
+    public ResponseEntity<ResultResponse> getTeamList(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                                      @RequestParam(defaultValue = "0") int page,
+                                                      @RequestParam(defaultValue = "10") int size){
+
+        loginCheck(customUserDetails.getUsername());
+        List<TeamDto.Response> teamListResponseDto = teamService.getTeamList(page, size);
+        ResultResponse response = new ResultResponse(ResponseCode.GET_TEAM_LIST_SUCCESS, teamListResponseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
@@ -64,7 +85,13 @@ public class TeamController {
      * @param 팀 생성 요청 DTO
      */
     @PatchMapping("/api/teams/{teamId}")
-    public void 팀정보수정(){
+    public ResponseEntity<ResultResponse> updateTeam(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable int teamId, @RequestBody TeamDto.UpdateRequest updateRequestDto){
+
+        String loginUserName = loginCheck(customUserDetails.getUsername());
+        TeamDto.UpdateResponse responseDto = teamService.updateTeamInfo(teamId,updateRequestDto,loginUserName);
+        ResultResponse response = new ResultResponse(ResponseCode.UPDATE_TEAM_SUCCESS, responseDto);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
 
     }
 
@@ -135,8 +162,15 @@ public class TeamController {
      * @param
      *
      */
-    @DeleteMapping("/api/teams/kick/{memberId}")
-    public void 멤버강퇴(){
+    @DeleteMapping("/api/teams/{teamId}/kick/{memberId}")
+    public ResponseEntity<ResultResponse> kickMemberFromTeam(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                                   @PathVariable int teamId,
+                                   @PathVariable int memberId){
+
+        String loginUserName = loginCheck(customUserDetails.getUsername());
+        TeamDto.Response responseDto = teamService.kickMemberById(memberId, teamId,loginUserName);
+        ResultResponse response = new ResultResponse(ResponseCode.KICK_MEMBER_SUCCESS, responseDto);
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }
 
     /**

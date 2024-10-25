@@ -56,6 +56,21 @@ public class TeamDto {
             this.createdAt = teamEntity.getCreatedAt();
         }
     }
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class UpdateRequest{
+        private String teamname;
+        private String description;
+
+        public TeamEntity toEntity(){
+            return TeamEntity.builder()
+                    .teamname(teamname)
+                    .description(description)
+                    .build();
+        }
+    }
 
     @Getter
     @AllArgsConstructor
