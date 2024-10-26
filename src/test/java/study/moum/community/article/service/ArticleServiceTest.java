@@ -5,9 +5,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.community.article.domain.article.ArticleEntity;
@@ -17,9 +19,12 @@ import study.moum.community.article.domain.article_details.ArticleDetailsReposit
 import study.moum.community.article.domain.article_details.ArticleRepositoryCustom;
 import study.moum.community.article.dto.ArticleDetailsDto;
 import study.moum.community.article.dto.ArticleDto;
+import study.moum.community.article.objectstorage.StorageService;
 import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.error.exception.NoAuthorityException;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +41,9 @@ class ArticleServiceTest {
 
     @Mock
     private ArticleRepository articleRepository;
+
+    @Mock
+    private StorageService storageService;
 
     @Mock
     private ArticleDetailsRepository articleDetailsRepository;
@@ -64,7 +72,7 @@ class ArticleServiceTest {
 
     @Test
     @DisplayName("게시글 생성 테스트 - 로그인 사용자")
-    void createArticleSuccess_LoggedInUser() {
+    void createArticleSuccess_LoggedInUser() throws IOException {
         // given: Article 생성
         ArticleDto.Request request = ArticleDto.Request.builder()
                 .category(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD)
@@ -83,12 +91,47 @@ class ArticleServiceTest {
         when(articleDetailsRepository.save(any(ArticleDetailsEntity.class))).thenReturn(new ArticleDetailsEntity());
 
         // when
-        ArticleDto.Response actualResponse = articleService.postArticle(request, author.getUsername());
+        ArticleDto.Response actualResponse = articleService.postArticle(request,any(), author.getUsername());
 
         // then
         assertEquals("test title", actualResponse.getTitle());
         assertEquals(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD, actualResponse.getCategory());
     }
+
+    @Test
+    @DisplayName("게시글 생성 테스트 - 로그인 사용자")
+    void createArticleSuccess_LoggedInUser2() throws IOException {
+        // given: Article 생성
+        ArticleDto.Request request = ArticleDto.Request.builder()
+                .category(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD)
+                .author(author)
+                .title("test title")
+                .build();
+
+        // Mock MultipartFile
+        MultipartFile mockFile = Mockito.mock(MultipartFile.class);
+        when(mockFile.getOriginalFilename()).thenReturn("testFile.txt");
+        when(mockFile.getContentType()).thenReturn("text/plain");
+        when(mockFile.getInputStream()).thenReturn(new ByteArrayInputStream("test content".getBytes()));
+        when(mockFile.getSize()).thenReturn((long) "test content".length());
+
+        // Mock 동작
+        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author); // db에 있는 유저
+        when(articleRepository.save(any(ArticleEntity.class))).thenAnswer(invocation -> {
+            ArticleEntity article = invocation.getArgument(0);
+            article.setId(1); // 가상의 id
+            return article;
+        });
+        when(articleDetailsRepository.save(any(ArticleDetailsEntity.class))).thenReturn(new ArticleDetailsEntity());
+
+        // when
+        ArticleDto.Response actualResponse = articleService.postArticle(request, mockFile, author.getUsername());
+
+        // then
+        assertEquals("test title", actualResponse.getTitle());
+        assertEquals(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD, actualResponse.getCategory());
+    }
+
 
     @Test
     @DisplayName("게시글 생성 테스트 - 로그인하지 않은 사용자")
@@ -105,7 +148,7 @@ class ArticleServiceTest {
 
         // when & then
         assertThrows(NeedLoginException.class, () -> {
-            articleService.postArticle(request, "로그인을 해야합니다.");
+            articleService.postArticle(request, any(),"로그인을 해야합니다.");
         });
     }
 
@@ -172,7 +215,7 @@ class ArticleServiceTest {
 
     @Test
     @DisplayName("게시글 수정 성공 - 권한없으면 에러")
-    void updateArticleWithoutAuthorization() {
+    void updateArticleWithoutAuthorization() throws IOException {
         // given : Article, Article Details 생성
         ArticleEntity article = ArticleEntity.builder()
                 .id(1)
@@ -201,7 +244,7 @@ class ArticleServiceTest {
         when(articleDetailsRepository.findById(1)).thenReturn(Optional.of(articleDetails));
 
         // when : 게시글 수정 요청
-        ArticleDetailsDto.Response response = articleService.updateArticleDetails(1, updateArticleDetailsRequest, author.getUsername());
+        ArticleDetailsDto.Response response = articleService.updateArticleDetails(1, updateArticleDetailsRequest, any(),author.getUsername());
 
         // then
         assertNotNull(response);
@@ -211,7 +254,7 @@ class ArticleServiceTest {
         assertEquals("RECRUIT_BOARD", response.getCategory());
 
         assertThrows(NoAuthorityException.class, () -> {
-            articleService.updateArticleDetails(1, updateArticleDetailsRequest, "not_author_user");
+            articleService.updateArticleDetails(1, updateArticleDetailsRequest, any(),"not_author_user");
         });
     }
 

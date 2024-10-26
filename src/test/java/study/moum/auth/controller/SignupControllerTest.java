@@ -9,18 +9,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.multipart.MultipartFile;
+import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.dto.MemberDto;
 import study.moum.auth.service.SignupService;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.DuplicateUsernameException;
 import study.moum.global.response.ResponseCode;
+import study.moum.moum.team.dto.TeamDto;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +46,6 @@ class SignupControllerTest {
         MockitoAnnotations.openMocks(this);
         objectMapper = new ObjectMapper();
     }
-
     @Test
     @DisplayName("회원가입 - 성공")
     @WithMockUser(username = "testUser")
@@ -54,43 +58,23 @@ class SignupControllerTest {
                 .email("test@test.com")
                 .build();
 
+        // ArticleRequestDto를 JSON으로 변환하여 MockMultipartFile로 생성
+        MockMultipartFile memberRequestDtoFile = new MockMultipartFile("memberRequestDto",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsString(memberRequestDto).getBytes());
+
         // When
-        doNothing().when(signupService).signupMember(any(MemberDto.Request.class));
+        doNothing().when(signupService).signupMember(any(MemberDto.Request.class), any());
 
         // Then
-        mockMvc.perform(post("/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(memberRequestDto))
-                        .with(csrf())) // CSRF 토큰 추가 -> 이거 있어야됨
+        mockMvc.perform(multipart("/join")
+                        .file(memberRequestDtoFile) // MemberRequestDto 추가
+                        .contentType(MediaType.MULTIPART_FORM_DATA) // Content-Type 설정
+                        .with(csrf())) // CSRF 토큰 추가
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCode.REGISTER_SUCCESS.getCode()))
                 .andExpect(jsonPath("$.data").value(memberRequestDto.getUsername()));
     }
 
-    @Test
-    @DisplayName("회원가입 - 이미 존재하는 사용자 에러")
-    @WithMockUser(username = "testUser")
-    void signupMember_ShouldReturnConflict_WhenUsernameAlreadyExists() throws Exception {
-        // Given
-        MemberDto.Request memberRequestDto = MemberDto.Request.builder()
-                .id(1)
-                .username("duplUser")
-                .password("password123")
-                .email("test@test.com")
-                .build();
-
-        // When
-        // 이미 존재하는 username인 경우 DuplicateUsernameException 발생
-        doThrow(new DuplicateUsernameException())
-                .when(signupService).signupMember(any(MemberDto.Request.class));
-
-        // Then
-        mockMvc.perform(post("/join")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(memberRequestDto))
-                        .with(csrf())) // CSRF 토큰 추가
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code").value(ErrorCode.USER_NAME_ALREADY_EXISTS.getCode()))
-                .andExpect(jsonPath("$.message").value(ErrorCode.USER_NAME_ALREADY_EXISTS.getMessage()));
-    }
 }

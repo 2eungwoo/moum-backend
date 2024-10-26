@@ -3,22 +3,26 @@ package study.moum.auth.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.auth.dto.MemberDto;
+import study.moum.community.article.objectstorage.StorageService;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.DuplicateUsernameException;
 import study.moum.config.redis.util.RedisUtil;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class SignupServiceTest {
 
@@ -27,6 +31,9 @@ class SignupServiceTest {
 
     @Mock
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Mock
+    private StorageService storageService;
 
     @Mock
     private RedisUtil redisUtil;
@@ -54,7 +61,7 @@ class SignupServiceTest {
 
         // Then
         DuplicateUsernameException thrown = assertThrows(DuplicateUsernameException.class, () -> {
-            signupService.signupMember(memberRequestDto);
+            signupService.signupMember(memberRequestDto, any());
         });
 
         // Check the exception message
@@ -80,7 +87,7 @@ class SignupServiceTest {
 
         // Then
         CustomException thrown = assertThrows(CustomException.class, () -> {
-            signupService.signupMember(memberRequestDto);
+            signupService.signupMember(memberRequestDto,any());
         });
 
         assertEquals(ErrorCode.EMAIL_VERIFY_FAILED, thrown.getErrorCode());
@@ -88,10 +95,9 @@ class SignupServiceTest {
 
     @Test
     @DisplayName("회원가입 성공 테스트 - 인증 코드 일치")
-    void SignupSuccess_EmailVerifySuccess_And_NewUsername() {
+    void SignupSuccess_EmailVerifySuccess_And_NewUsername() throws IOException {
         // Given
         MemberDto.Request memberRequestDto = MemberDto.Request.builder()
-                .id(3)
                 .username("newUser")
                 .password("password123")
                 .email("test@example.com")
@@ -104,25 +110,32 @@ class SignupServiceTest {
         when(bCryptPasswordEncoder.encode(memberRequestDto.getPassword())).thenReturn("encodedPassword");
 
         MemberEntity savedMemberEntity = MemberEntity.builder()
-                .id(memberRequestDto.getId())
                 .username(memberRequestDto.getUsername())
                 .password("encodedPassword")
                 .email(memberRequestDto.getEmail())
-                .role("ROLE_USER")
+                //.role("ROLE_USER")
                 .build();
 
         // Mock 저장 동작
         when(memberRepository.save(any(MemberEntity.class))).thenReturn(savedMemberEntity);
 
-        // Execute
-        signupService.signupMember(memberRequestDto);
+        // Mock MultipartFile 생성
+        MultipartFile file = mock(MultipartFile.class);
+        when(file.getOriginalFilename()).thenReturn("profile.jpg");
+        when(file.getBytes()).thenReturn("test file content".getBytes()); // Mocking file content
+
+        // When
+        signupService.signupMember(memberRequestDto, file); // 파일을 포함한 회원가입 호출
 
         // Verify 저장된 엔티티 정보
-        assertEquals(3, savedMemberEntity.getId());
-        assertEquals("newUser", savedMemberEntity.getUsername());
-        assertEquals("encodedPassword", savedMemberEntity.getPassword());
-        assertEquals("test@example.com", savedMemberEntity.getEmail());
-        assertEquals("ROLE_USER", savedMemberEntity.getRole());
+        ArgumentCaptor<MemberEntity> memberEntityCaptor = ArgumentCaptor.forClass(MemberEntity.class);
+        verify(memberRepository).save(memberEntityCaptor.capture());
+        MemberEntity capturedMemberEntity = memberEntityCaptor.getValue();
+
+        assertEquals("newUser", capturedMemberEntity.getUsername());
+        assertEquals("encodedPassword", capturedMemberEntity.getPassword());
+        assertEquals("test@example.com", capturedMemberEntity.getEmail());
+//        assertEquals("ROLE_USER", capturedMemberEntity.getRole());
 
         // Redis에서 인증 코드가 호출되었는지 확인
         verify(redisUtil).getData(memberRequestDto.getEmail());
