@@ -26,6 +26,8 @@ public class QArticleDetailsEntity extends EntityPathBase<ArticleDetailsEntity> 
 
     public final StringPath content = createString("content");
 
+    public final StringPath fileUrl = createString("fileUrl");
+
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
     public QArticleDetailsEntity(String variable) {

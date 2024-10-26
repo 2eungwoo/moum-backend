@@ -1,9 +1,11 @@
 package study.moum.community.article.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.community.article.domain.article.ArticleEntity;
@@ -13,11 +15,15 @@ import study.moum.community.article.domain.article_details.ArticleDetailsReposit
 import study.moum.community.article.domain.article_details.ArticleRepositoryCustom;
 import study.moum.community.article.dto.ArticleDetailsDto;
 import study.moum.community.article.dto.ArticleDto;
+import study.moum.community.article.objectstorage.StorageService;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.error.exception.NoAuthorityException;
 
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,12 +35,17 @@ public class ArticleService {
     private final ArticleDetailsRepository articleDetailsRepository;
     private final MemberRepository memberRepository;
     private final ArticleRepositoryCustom articleRepositoryCustom;
+    private final StorageService storageService;
+
+    @Value("${ncp.object-storage.bucket}")
+    private String bucket;
 
     /**
      * 게시글 작성 메서드.
      *
      * @param articleRequestDto 게시글 작성 요청 DTO
      * @param memberName 작성자 사용자 이름
+     * @param file 멀티파트 파일
      * @return 작성된 게시글의 응답 DTO
      *
      * 해당 메서드는 사용자가 게시글을 작성할 때 호출되며, 작성자의 정보를 확인하고 게시글과
@@ -44,7 +55,7 @@ public class ArticleService {
      * - 게시글의 상세 내용(ArticleDetails)도 함께 저장
      */
     @Transactional
-    public ArticleDto.Response postArticle(ArticleDto.Request articleRequestDto, String memberName){
+    public ArticleDto.Response postArticle(ArticleDto.Request articleRequestDto, MultipartFile file, String memberName) throws IOException {
         MemberEntity author = memberRepository.findByUsername(memberName);
         if(author == null){
             throw new NeedLoginException();
@@ -61,9 +72,16 @@ public class ArticleService {
         ArticleEntity newArticle = articleRequest.toEntity();
         articleRepository.save(newArticle);
 
+        // 파일 업로드 후 URL 획득
+        // S3에 저장할 파일의 키를 설정 (예: "articles/{articleId}/{originalFileName}")
+        String originalFilename = file.getOriginalFilename();
+        String key = "articles/" + newArticle.getId() + "/" + originalFilename; // 키 생성
+        String fileUrl = storageService.uploadFile(key, file); // 업로드 메서드 호출
+
         // article_details 테이블 -> content 작성
         ArticleDetailsDto.Request articleDetailsRequestDto = ArticleDetailsDto.Request.builder()
                 .content(articleRequestDto.getContent())
+                .fileUrl(fileUrl) // 파일 URL 설정
                 .build();
 
         // article_details 테이블 저장
@@ -125,7 +143,8 @@ public class ArticleService {
     @Transactional
     public ArticleDetailsDto.Response updateArticleDetails(int articleDetailsId,
                                                            ArticleDetailsDto.Request articleDetailsRequestDto,
-                                                           String memberName){
+                                                           MultipartFile file,
+                                                           String memberName) throws IOException {
 
         ArticleDetailsEntity articleDetails = getArticleDetails(articleDetailsId);
         ArticleEntity article = getArticle(articleDetailsId);
@@ -138,6 +157,23 @@ public class ArticleService {
         String newTitle = articleDetailsRequestDto.getTitle();
         String newContent = articleDetailsRequestDto.getContent();
         ArticleEntity.ArticleCategories newCategory = articleDetailsRequestDto.getCategory();
+
+        // 기존 파일 URL
+        String existingFileUrl = articleDetails.getFileUrl();
+
+        // 새로운 파일이 있을 경우 처리
+        if (file != null && !file.isEmpty()) {
+            // S3에서 기존 파일 삭제
+            if (existingFileUrl != null && !existingFileUrl.isEmpty()) {
+                String existingFileName = existingFileUrl.replace("https://kr.object.ncloudstorage.com/" + bucket + "/", "");
+                storageService.deleteFile(existingFileName); // S3에서 기존 파일 삭제
+            }
+
+            // 새로운 파일 업로드
+            String newFileName = "articles/" + articleDetailsId + "/" + file.getOriginalFilename(); // 폴더 구조에 맞게 설정
+            String newFileUrl = storageService.uploadFile(newFileName, file); // S3에 파일 업로드
+            articleDetails.setFileUrl(newFileUrl); // 새 파일 URL 설정
+        }
 
         // article_details, article 둘 다 update
         articleDetails.updateArticleDetails(newContent);
@@ -169,6 +205,13 @@ public class ArticleService {
         String articleAuthor = article.getAuthor().getUsername();
         checkAuthor(memberName, articleAuthor);
 
+        String fileUrl = articleDetails.getFileUrl();
+        if (fileUrl != null && !fileUrl.isEmpty()) {
+            // S3에서의 파일 경로 제거해서 key 추출하기 -> 경로 : /articles/{id}/{fileName} 이런식임
+            String fileName = fileUrl.replace("https://kr.object.ncloudstorage.com/" + bucket + "/", "");
+            fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8); // URL 디코딩
+            storageService.deleteFile(fileName); // S3에서 파일 삭제
+        }
         // article_details, article 테이블 둘 다 삭제
         articleDetailsRepository.deleteById(articleDetailsId);
         articleRepository.deleteById(articleDetailsId);

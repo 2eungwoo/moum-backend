@@ -12,7 +12,7 @@ spring:
   jpa:
     open-in-view: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate.transaction.jta.platform: org.hibernate.service.jta.JtaPlatform
@@ -55,3 +55,12 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+
+ncp:
+  object-storage:
+    endpoint: https://kr.object.ncloudstorage.com
+    region: kr-standard
+    access-key: ncp_iam_BPAMKR2MhBwOgB3j1oI5
+    secret-key: ncp_iam_BPKMKRCDtYOBhPsxfs0g1Rtl1OV6bBsPtG
+    bucket: moumstorage
+

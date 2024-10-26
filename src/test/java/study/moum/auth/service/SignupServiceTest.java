@@ -13,7 +13,7 @@ import study.moum.auth.dto.MemberDto;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.DuplicateUsernameException;
-import study.moum.redis.util.RedisUtil;
+import study.moum.config.redis.util.RedisUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

@@ -1,4 +1,4 @@
-package study.moum.redis.util;
+package study.moum.config.redis.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

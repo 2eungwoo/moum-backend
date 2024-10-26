@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.CustomUserDetails;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.community.article.domain.article.ArticleEntity;
@@ -17,6 +18,7 @@ import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.response.ResponseCode;
 import study.moum.global.response.ResultResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,7 +26,6 @@ import java.util.List;
 public class ArticleController {
 
     private final ArticleService articleService;
-    // private final WishlistService wishlistService;
 
     /**
      * 게시글 목록 조회 API
@@ -60,22 +61,26 @@ public class ArticleController {
      * 게시글 작성 API
      *
      * @param article 작성 요청 dto
+     * @param file 멀티파트 파일
      * @param customUserDetails 현재 인증된 사용자 정보 (CustomUserDetails 객체에서 사용자 정보 추출)
      * @return 작성한 게시글
      */
     @PostMapping("/api/articles")
     public ResponseEntity<ResultResponse> postArticle(
-            @Valid @RequestBody ArticleDto.Request articleRequestDto,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails){
+            @Valid @RequestPart(value = "articleRequestDto") ArticleDto.Request articleRequestDto,
+            @RequestPart(value = "file", required = false) MultipartFile file, // MultipartFile 추가
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
 
-        if(customUserDetails == null){
+        if (customUserDetails == null) {
             throw new NeedLoginException();
         }
-        ArticleDto.Response articleResponse = articleService.postArticle(articleRequestDto, customUserDetails.getUsername());
+
+        ArticleDto.Response articleResponse = articleService.postArticle(articleRequestDto, file, customUserDetails.getUsername());
 
         ResultResponse response = ResultResponse.of(ResponseCode.ARTICLE_POST_SUCCESS, articleResponse);
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
 
     /**
      * 게시글 수정 API
@@ -88,10 +93,11 @@ public class ArticleController {
     @PatchMapping("/api/articles/{id}")
     public ResponseEntity<ResultResponse> updateArticle(
             @PathVariable int id,
-            @Valid @RequestBody ArticleDetailsDto.Request articleDetailsRequestDto,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails){
+            @Valid @RequestPart ArticleDetailsDto.Request articleDetailsRequestDto,
+            @RequestPart(value = "file", required = false) MultipartFile file, // MultipartFile 추가
+            @AuthenticationPrincipal CustomUserDetails customUserDetails) throws IOException {
 
-        ArticleDetailsDto.Response articleResponse = articleService.updateArticleDetails(id, articleDetailsRequestDto, customUserDetails.getUsername());
+        ArticleDetailsDto.Response articleResponse = articleService.updateArticleDetails(id, articleDetailsRequestDto, file, customUserDetails.getUsername());
         ResultResponse response = ResultResponse.of(ResponseCode.ARTICLE_UPDATE_SUCCESS, articleResponse);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
     }

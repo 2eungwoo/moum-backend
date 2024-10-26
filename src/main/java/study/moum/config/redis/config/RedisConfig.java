@@ -1,4 +1,4 @@
-package study.moum.redis.config;
+package study.moum.config.redis.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

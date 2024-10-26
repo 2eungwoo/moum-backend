@@ -10,15 +10,12 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import study.moum.email.controller.EmailController;
 import study.moum.email.dto.EmailDto;
 import study.moum.email.dto.VerifyDto;
 import study.moum.email.service.EmailService;
 import study.moum.global.error.ErrorCode;
-import study.moum.global.error.exception.CustomException;
-import study.moum.global.error.exception.NoAuthorityException;
 import study.moum.global.response.ResponseCode;
-import study.moum.redis.util.RedisUtil;
+import study.moum.config.redis.util.RedisUtil;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;

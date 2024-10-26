@@ -13,7 +13,7 @@ import study.moum.email.dto.VerifyDto;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.AlreadyVerifiedEmailException;
 import study.moum.global.error.exception.CustomException;
-import study.moum.redis.util.RedisUtil;
+import study.moum.config.redis.util.RedisUtil;
 
 import java.util.UUID;
 

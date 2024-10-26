@@ -3,6 +3,7 @@ package study.moum.community.article.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 import study.moum.community.article.domain.article.ArticleEntity;
 import study.moum.community.article.domain.article_details.ArticleDetailsEntity;
 import study.moum.community.comment.dto.CommentDto;
@@ -27,10 +28,13 @@ public class ArticleDetailsDto {
         // ArticleDetails로 빼서 저장해줄거임 request.dto에만 존재
         private String content;
 
+        private String fileUrl;
+
         public ArticleDetailsEntity toEntity(){
             return ArticleDetailsEntity.builder()
                     .id(id)
                     .content(content)
+                    .fileUrl(fileUrl)
                     .build();
         }
     }
@@ -47,6 +51,7 @@ public class ArticleDetailsDto {
         private final int likeCounts;
         private final String author;
         private List<CommentDto.Response> comments = new ArrayList<>();
+        private String fileUrl;
 
         public Response(ArticleDetailsEntity articleDetails, ArticleEntity article){
             this.id = article.getId();
@@ -60,6 +65,7 @@ public class ArticleDetailsDto {
                     .map(CommentDto.Response::new)
                     .collect(Collectors.toList());
             this.content = articleDetails.getContent();
+            this.fileUrl = articleDetails.getFileUrl();
         }
     }
 

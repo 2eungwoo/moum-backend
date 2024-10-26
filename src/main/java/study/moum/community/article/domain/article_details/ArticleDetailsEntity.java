@@ -1,5 +1,6 @@
 package study.moum.community.article.domain.article_details;
 
+import jakarta.mail.Multipart;
 import jakarta.persistence.*;
 import lombok.*;
 import study.moum.community.comment.domain.CommentEntity;
@@ -26,6 +27,9 @@ public class ArticleDetailsEntity {
 
     @Column(name = "content")
     private String content;
+
+    @Column(name = "file_url")
+    private String fileUrl;
 
     @OneToMany(mappedBy = "articleDetails", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<CommentEntity> comments = new ArrayList<>();

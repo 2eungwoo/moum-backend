@@ -25,7 +25,11 @@ public class ArticleDto {
         // ArticleDetails로 빼서 저장해줄거임 request.dto에만 존재
         private String content;
 
+        // 애도 content랑 마찬가지
+        private String fileUrl;
+
         private MemberEntity author;
+
 
         public ArticleEntity toEntity(){
             return ArticleEntity.builder()
