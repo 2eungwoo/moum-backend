@@ -20,11 +20,11 @@ public class CommentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @JoinColumn(name = "author_id")
+    @JoinColumn(name = "fk_comment_author_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private MemberEntity author;
 
-    @JoinColumn(name = "article_details_id")
+    @JoinColumn(name = "fk_article_details_id")
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private ArticleDetailsEntity articleDetails;
 
