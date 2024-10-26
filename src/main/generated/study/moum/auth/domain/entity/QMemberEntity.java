@@ -24,11 +24,15 @@ public class QMemberEntity extends EntityPathBase<MemberEntity> {
 
     public final QAddress address;
 
+    public final StringPath description = createString("description");
+
     public final StringPath email = createString("email");
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
     public final StringPath password = createString("password");
+
+    public final StringPath profileImageUrl = createString("profileImageUrl");
 
     public final StringPath role = createString("role");
 

@@ -28,11 +28,13 @@ public class MemberDto {
 
         @NotEmpty @NotNull @Email
         private String email;
+        private String description;
 
         private String verifyCode;
 
         // todo : 필수항목으로 바꿀거임
         private Address address;
+        private String profileImageUrl;
 
         // private String verifyCode;
 
@@ -43,6 +45,8 @@ public class MemberDto {
                     .email(email)
                     .password(password)
                     .address(address)
+                    .profileImageUrl(profileImageUrl)
+                    .description(description)
                     .build();
         }
     }
@@ -51,10 +55,14 @@ public class MemberDto {
     public static class Response{
         private final int id;
         private final String username;
+        private final String description;
+        private final String profileImageUrl;
 
         public Response(MemberEntity member){
             this.id = member.getId();
             this.username = member.getUsername();
+            this.description = member.getDescription();
+            this.profileImageUrl = member.getProfileImageUrl();
         }
     }
 
