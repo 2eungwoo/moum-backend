@@ -55,6 +55,7 @@ class ArticleServiceTest {
     private ArticleRepositoryCustom articleRepositoryCustom;
 
     private MemberEntity author;
+    private ArticleEntity mockArticle;
 
     @BeforeEach
     void setUp() {
@@ -68,8 +69,13 @@ class ArticleServiceTest {
                 .password("12345123")
                 .role("ROLE_ADMIN")
                 .build();
-    }
 
+        mockArticle = ArticleEntity.builder()
+                .id(123123)
+                .title("test title")
+                .author(author)
+                .build();
+    }
     @Test
     @DisplayName("게시글 생성 테스트 - 로그인 사용자")
     void createArticleSuccess_LoggedInUser() throws IOException {
@@ -80,49 +86,24 @@ class ArticleServiceTest {
                 .title("test title")
                 .build();
 
-        // Mock 동작
-        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author); // db에 있는 유저
-
-        when(articleRepository.save(any(ArticleEntity.class))).thenAnswer(invocation -> {
-            ArticleEntity article = invocation.getArgument(0);
-            article.setId(1); // 가상의 id
-            return article;
-        });
-        when(articleDetailsRepository.save(any(ArticleDetailsEntity.class))).thenReturn(new ArticleDetailsEntity());
-
-        // when
-        ArticleDto.Response actualResponse = articleService.postArticle(request,any(), author.getUsername());
-
-        // then
-        assertEquals("test title", actualResponse.getTitle());
-        assertEquals(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD, actualResponse.getCategory());
-    }
-
-    @Test
-    @DisplayName("게시글 생성 테스트 - 로그인 사용자")
-    void createArticleSuccess_LoggedInUser2() throws IOException {
-        // given: Article 생성
-        ArticleDto.Request request = ArticleDto.Request.builder()
-                .category(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD)
-                .author(author)
-                .title("test title")
-                .build();
-
         // Mock MultipartFile
         MultipartFile mockFile = Mockito.mock(MultipartFile.class);
-        when(mockFile.getOriginalFilename()).thenReturn("testFile.txt");
-        when(mockFile.getContentType()).thenReturn("text/plain");
-        when(mockFile.getInputStream()).thenReturn(new ByteArrayInputStream("test content".getBytes()));
-        when(mockFile.getSize()).thenReturn((long) "test content".length());
+        when(mockFile.getOriginalFilename()).thenReturn("testFile.jpg"); // 파일 확장자를 jpg로 변경
+        when(mockFile.getContentType()).thenReturn("image/jpeg"); // 콘텐츠 타입을 image/jpeg로 변경
+        when(mockFile.getInputStream()).thenReturn(new ByteArrayInputStream("test content".getBytes())); // 실제 이미지 콘텐츠로 변경 가능
+        when(mockFile.getSize()).thenReturn((long) "test content".length()); // 사이즈는 이미지 콘텐츠에 맞게 변경 가능
 
         // Mock 동작
         when(memberRepository.findByUsername(author.getUsername())).thenReturn(author); // db에 있는 유저
-        when(articleRepository.save(any(ArticleEntity.class))).thenAnswer(invocation -> {
-            ArticleEntity article = invocation.getArgument(0);
-            article.setId(1); // 가상의 id
-            return article;
-        });
-        when(articleDetailsRepository.save(any(ArticleDetailsEntity.class))).thenReturn(new ArticleDetailsEntity());
+
+
+        when(articleRepository.findById(anyInt())).thenReturn(Optional.of(mockArticle));
+//        when(articleRepository.save(any(ArticleEntity.class))).thenAnswer(invocation -> {
+//            ArticleEntity article = invocation.getArgument(0);
+//            article.setId(1); // 가상의 id
+//            return article;
+//        });
+        //when(articleDetailsRepository.save(any(ArticleDetailsEntity.class))).thenReturn(new ArticleDetailsEntity());
 
         // when
         ArticleDto.Response actualResponse = articleService.postArticle(request, mockFile, author.getUsername());
@@ -131,6 +112,7 @@ class ArticleServiceTest {
         assertEquals("test title", actualResponse.getTitle());
         assertEquals(ArticleEntity.ArticleCategories.FREE_TALKING_BOARD, actualResponse.getCategory());
     }
+
 
 
     @Test
@@ -168,6 +150,7 @@ class ArticleServiceTest {
                 .content("test content")
                 .comments(new ArrayList<>())
                 .articleId(article.getId())
+                .fileUrl("file url")
                 .build();
 
         // Mock 동작
@@ -182,6 +165,7 @@ class ArticleServiceTest {
         assertEquals(1, response.getId());
         assertEquals("test title", response.getTitle());
         assertEquals("test content", response.getContent());
+        assertEquals("file url", response.getFileUrl());
     }
 
     @Test

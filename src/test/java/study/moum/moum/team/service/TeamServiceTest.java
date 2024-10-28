@@ -275,21 +275,21 @@ class TeamServiceTest {
     @DisplayName("팀 멤버 강퇴 성공")
     @Disabled("테스트코드 수정 필요")
     void kickMember_Success() {
-//        // given
-//        when(memberRepository.findById(mockMember.getId())).thenReturn(Optional.of(mockMember));
-//        when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
-//        when(teamMemberRepositoryCustom.existsByTeamAndMember(mockTeam.getId(), mockMember.getId())).thenReturn(true);
-//        doReturn(true).when(teamService).checkLeader(any(), any());
-//        when(teamMemberRepositoryCustom.findMemberInTeamById(anyInt(), anyInt())).thenReturn(mockTeamMember);
-//
-//        // when
-//        TeamDto.Response response = teamService.kickMemberById(mockMember.getId(), mockTeam.getId());
-//
-//        // then
-//        assertThat(response.getMembers().size()).isEqualTo(0);
-//        verify(teamMemberRepositoryCustom).deleteMemberFromTeamById(anyInt(), anyInt());
-//        verify(teamRepository).save(mockTeam);
-//        verify(memberRepository).save(mockMember);
+        // given
+        when(memberRepository.findById(mockMember.getId())).thenReturn(Optional.of(mockMember));
+        when(teamRepository.findById(mockTeam.getId())).thenReturn(Optional.of(mockTeam));
+        when(teamMemberRepositoryCustom.existsByTeamAndMember(mockTeam.getId(), mockMember.getId())).thenReturn(true);
+        doReturn(true).when(teamService).checkLeader(any(), any());
+        when(teamMemberRepositoryCustom.findMemberInTeamById(anyInt(), anyInt())).thenReturn(mockTeamMember);
+
+        // when
+        TeamDto.Response response = teamService.kickMemberById(mockMember.getId(), mockTeam.getId(), mockLeader.getUsername());
+
+        // then
+        assertThat(response.getMembers().size()).isEqualTo(0);
+        verify(teamMemberRepositoryCustom).deleteMemberFromTeamById(anyInt(), anyInt());
+        verify(teamRepository).save(mockTeam);
+        verify(memberRepository).save(mockMember);
     }
 
     @Test
