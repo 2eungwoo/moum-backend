@@ -1,0 +1,41 @@
+package study.moum.record.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import study.moum.moum.team.domain.TeamEntity;
+import study.moum.moum.team.domain.TeamMemberEntity;
+import study.moum.record.domain.MemberRecordEntity;
+import study.moum.record.domain.RecordEntity;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public class RecordDto {
+
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    public static class Request{
+        private String recordName;
+        private int memberId;
+        private int recordId;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private List<MemberRecordEntity> members;
+
+        public RecordEntity toEntity(){
+            return RecordEntity.builder().build();
+
+        }
+
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class Response{
+
+    }
+}

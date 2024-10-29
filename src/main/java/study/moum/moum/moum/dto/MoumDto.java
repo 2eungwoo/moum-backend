@@ -1,2 +1,4 @@
-package study.moum.moum.moum.dto;public class MoumDto {
+package study.moum.moum.moum.dto;
+
+public class MoumDto {
 }

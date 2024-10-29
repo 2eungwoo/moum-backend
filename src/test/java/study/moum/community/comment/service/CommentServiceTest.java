@@ -1,7 +1,6 @@
 package study.moum.community.comment.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,13 +13,13 @@ import study.moum.community.article.domain.article.ArticleEntity;
 import study.moum.community.article.domain.article.ArticleRepository;
 import study.moum.community.article.domain.article_details.ArticleDetailsEntity;
 import study.moum.community.article.domain.article_details.ArticleDetailsRepository;
-import study.moum.community.article.dto.ArticleDto;
 import study.moum.community.comment.domain.CommentEntity;
 import study.moum.community.comment.domain.CommentRepository;
 import study.moum.community.comment.dto.CommentDto;
 import study.moum.custom.WithAuthUser;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
+import study.moum.global.error.exception.MemberNotExistException;
 import study.moum.global.error.exception.NoAuthorityException;
 
 import java.util.ArrayList;
@@ -46,10 +45,10 @@ class CommentServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
-    private MemberEntity author;
-    private ArticleDetailsEntity articleDetails;
-    private ArticleEntity article;
-    private CommentEntity comment;
+    private MemberEntity mockAuthor;
+    private ArticleDetailsEntity mockArticleDetails;
+    private ArticleEntity mockArticle;
+    private CommentEntity mockComment;
 
 
     @BeforeEach
@@ -57,7 +56,7 @@ class CommentServiceTest {
         MockitoAnnotations.openMocks(this);
 
         // 테스트에 필요한 객체들 초기화
-        author = MemberEntity.builder()
+        mockAuthor = MemberEntity.builder()
                 .id(1)
                 .email("test@user.com")
                 .password("1234")
@@ -65,25 +64,25 @@ class CommentServiceTest {
                 .role("ROLE_ADMIN")
                 .build();
 
-        article = ArticleEntity.builder()
+        mockArticle = ArticleEntity.builder()
                 .id(1)
                 .title("test title")
-                .author(author)
+                .author(mockAuthor)
                 .category(ArticleEntity.ArticleCategories.RECRUIT_BOARD)
                 .commentCount(0)
                 .build();
 
-        articleDetails = ArticleDetailsEntity.builder()
+        mockArticleDetails = ArticleDetailsEntity.builder()
                 .id(1)
                 .comments(new ArrayList<>())
                 .content("test content")
-                .articleId(article.getId())
+                .articleId(mockArticle.getId())
                 .build();
 
-        comment = CommentEntity.builder()
+        mockComment = CommentEntity.builder()
                 .id(1)
-                .articleDetails(articleDetails)
-                .author(author)
+                .articleDetails(mockArticleDetails)
+                .author(mockAuthor)
                 .content("test content")
                 .build();
     }
@@ -94,24 +93,42 @@ class CommentServiceTest {
     void create_comment_success(){
         // given
         CommentDto.Request commentRequest = CommentDto.Request.builder()
-                .articleDetails(articleDetails)
+                .articleDetails(mockArticleDetails)
                 .content("test content")
-                .author(author)
+                .author(mockAuthor)
                 .build();
 
         // Mock 동작
-        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author);
-        when(articleDetailsRepository.findById(articleDetails.getId())).thenReturn(Optional.ofNullable(articleDetails));
-        when(articleRepository.findById(article.getId())).thenReturn(Optional.ofNullable(article));
+        when(memberRepository.findByUsername(mockAuthor.getUsername())).thenReturn(mockAuthor);
+        when(articleDetailsRepository.findById(mockArticleDetails.getId())).thenReturn(Optional.ofNullable(mockArticleDetails));
+        when(articleRepository.findById(mockArticle.getId())).thenReturn(Optional.ofNullable(mockArticle));
 
         // when
-        CommentDto.Response response = commentService.createComment(commentRequest,author.getUsername(),article.getId());
+        CommentDto.Response response = commentService.createComment(commentRequest, mockAuthor.getUsername(), mockArticle.getId());
 
         // then
         verify(commentRepository).save(any(CommentEntity.class));
         assertEquals("test content", response.getContent());
-        assertEquals(1, article.getCommentCount());
+        assertEquals(1, mockArticle.getCommentCount());
 
+    }
+    @Test
+    @DisplayName("댓글 생성 실패 - 없는 사용자")
+    @WithMockUser(username = "testuser") // 로그인한 사용자 설정
+    void createComment_Fail_MemberNotFound() {
+        // Given
+        when(memberRepository.findByUsername("testuser")).thenReturn(null); // 사용자를 찾지 못함
+        when(articleRepository.findById(1)).thenReturn(Optional.of(mockArticle)); // Mock Article 설정
+
+        CommentDto.Request commentRequestDto = CommentDto.Request.builder()
+                .content("test comment")
+                .build();
+
+        // When & Then
+        MemberNotExistException exception = assertThrows(MemberNotExistException.class,
+                () -> commentService.createComment(commentRequestDto, "testuser", 1)); // 예외 발생 확인
+
+        assertEquals(ErrorCode.MEMBER_NOT_EXIST, exception.getErrorCode()); // 예외 코드 검증
     }
 
     @Test
@@ -120,19 +137,19 @@ class CommentServiceTest {
     void update_comment_success(){
         // given
         CommentDto.Request updateRequest = CommentDto.Request.builder()
-                .articleDetails(articleDetails)
+                .articleDetails(mockArticleDetails)
                 .content("update content")
-                .author(author)
+                .author(mockAuthor)
                 .build();
 
         // Mock 동작
-        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author);
-        when(articleDetailsRepository.findById(articleDetails.getId())).thenReturn(Optional.ofNullable(articleDetails));
-        when(articleRepository.findById(article.getId())).thenReturn(Optional.ofNullable(article));
-        when(commentRepository.findById(comment.getId())).thenReturn(Optional.ofNullable(comment));
+        when(memberRepository.findByUsername(mockAuthor.getUsername())).thenReturn(mockAuthor);
+        when(articleDetailsRepository.findById(mockArticleDetails.getId())).thenReturn(Optional.ofNullable(mockArticleDetails));
+        when(articleRepository.findById(mockArticle.getId())).thenReturn(Optional.ofNullable(mockArticle));
+        when(commentRepository.findById(mockComment.getId())).thenReturn(Optional.ofNullable(mockComment));
 
         // when
-        CommentDto.Response response = commentService.updateComment(updateRequest,author.getUsername(),article.getId());
+        CommentDto.Response response = commentService.updateComment(updateRequest, mockAuthor.getUsername(), mockArticle.getId());
 
         // then
         verify(commentRepository).save(any(CommentEntity.class));
@@ -146,18 +163,18 @@ class CommentServiceTest {
         // given
 
         // Mock 동작
-        when(memberRepository.findByUsername(author.getUsername())).thenReturn(author);
-        when(articleDetailsRepository.findById(articleDetails.getId())).thenReturn(Optional.ofNullable(articleDetails));
-        when(articleRepository.findById(article.getId())).thenReturn(Optional.ofNullable(article));
-        when(commentRepository.findById(comment.getId())).thenReturn(Optional.ofNullable(comment));
+        when(memberRepository.findByUsername(mockAuthor.getUsername())).thenReturn(mockAuthor);
+        when(articleDetailsRepository.findById(mockArticleDetails.getId())).thenReturn(Optional.ofNullable(mockArticleDetails));
+        when(articleRepository.findById(mockArticle.getId())).thenReturn(Optional.ofNullable(mockArticle));
+        when(commentRepository.findById(mockComment.getId())).thenReturn(Optional.ofNullable(mockComment));
 
         // when
-        CommentDto.Response response = commentService.deleteComment(author.getUsername(),article.getId());
+        CommentDto.Response response = commentService.deleteComment(mockAuthor.getUsername(), mockArticle.getId());
 
         // then
-        verify(commentRepository).deleteById(comment.getId());
+        verify(commentRepository).deleteById(mockComment.getId());
         assertEquals(1, response.getCommentId());
-        assertEquals(0,article.getCommentCount());
+        assertEquals(0, mockArticle.getCommentCount());
     }
 
     @Test
@@ -165,7 +182,7 @@ class CommentServiceTest {
     @WithMockUser(username = "testuser") // 로그인한 사용자 설정
     void updateComment_Fail_NoComment() {
         // Given
-        CommentDto.Request requestDto = new CommentDto.Request("수정된 댓글 내용", author, articleDetails);
+        CommentDto.Request requestDto = new CommentDto.Request("수정된 댓글 내용", mockAuthor, mockArticleDetails);
 
         when(commentRepository.findById(1)).thenReturn(Optional.empty());
 
@@ -179,8 +196,8 @@ class CommentServiceTest {
     @DisplayName("댓글 삭제 실패 - 권한 없음")
     void deleteComment_Fail_NoAuthorization() {
         // Given
-        when(memberRepository.findByUsername("testuser")).thenReturn(author);
-        when(commentRepository.findById(1)).thenReturn(Optional.of(comment));
+        when(memberRepository.findByUsername("testuser")).thenReturn(mockAuthor);
+        when(commentRepository.findById(1)).thenReturn(Optional.of(mockComment));
 
         // 다른 사용자가 작성한 댓글로 설정
         MemberEntity anotherUser = MemberEntity.builder()
@@ -191,7 +208,7 @@ class CommentServiceTest {
                 .role("ROLE_ADMIN")
                 .build();
 
-        comment.setAuthor(anotherUser);
+        mockComment.setAuthor(anotherUser);
 
         // When & Then
         NoAuthorityException exception = assertThrows(NoAuthorityException.class,

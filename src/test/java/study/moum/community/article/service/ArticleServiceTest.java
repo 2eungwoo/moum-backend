@@ -19,7 +19,7 @@ import study.moum.community.article.domain.article_details.ArticleDetailsReposit
 import study.moum.community.article.domain.article_details.ArticleRepositoryCustom;
 import study.moum.community.article.dto.ArticleDetailsDto;
 import study.moum.community.article.dto.ArticleDto;
-import study.moum.community.article.objectstorage.StorageService;
+import study.moum.objectstorage.StorageService;
 import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.error.exception.NoAuthorityException;
 

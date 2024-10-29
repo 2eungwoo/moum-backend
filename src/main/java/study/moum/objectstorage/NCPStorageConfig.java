@@ -1,4 +1,4 @@
-package study.moum.community.article.objectstorage;
+package study.moum.objectstorage;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

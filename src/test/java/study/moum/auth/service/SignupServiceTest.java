@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
 import study.moum.auth.dto.MemberDto;
-import study.moum.community.article.objectstorage.StorageService;
+import study.moum.objectstorage.StorageService;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.DuplicateUsernameException;

@@ -15,7 +15,7 @@ import study.moum.community.article.domain.article_details.ArticleDetailsReposit
 import study.moum.community.article.domain.article_details.ArticleRepositoryCustom;
 import study.moum.community.article.dto.ArticleDetailsDto;
 import study.moum.community.article.dto.ArticleDto;
-import study.moum.community.article.objectstorage.StorageService;
+import study.moum.objectstorage.StorageService;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
 import study.moum.global.error.exception.NeedLoginException;

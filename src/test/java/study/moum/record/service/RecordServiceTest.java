@@ -1,0 +1,110 @@
+package study.moum.record.service;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import study.moum.auth.domain.entity.MemberEntity;
+import study.moum.auth.domain.repository.MemberRepository;
+import study.moum.moum.moum.domain.MoumRepository;
+import study.moum.moum.moum.domain.MoumTeamRepository;
+import study.moum.moum.moum.service.MoumService;
+import study.moum.moum.team.dto.TeamDto;
+import study.moum.record.domain.MemberRecordEntity;
+import study.moum.record.domain.RecordEntity;
+import study.moum.record.repository.MemberRecordRepository;
+import study.moum.record.repository.RecordRepository;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
+class RecordServiceTest {
+
+    @Spy
+    @InjectMocks
+    private RecordService recordService;
+
+    @Mock
+    private RecordRepository recordRepository;
+
+    @Mock
+    private MemberRepository memberRepository;
+
+    @Mock
+    private MemberRecordRepository memberRecordRepository;
+
+    private RecordEntity mockRecord;
+    private MemberEntity mockMember;
+    private MemberRecordEntity mockMemberRecord;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        mockMemberRecord = MemberRecordEntity.builder()
+                .id(1)
+                .member(mockMember)
+                .record(mockRecord)
+                .build();
+
+        mockRecord = RecordEntity.builder()
+                .id(1)
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(30))
+                .memberRecordEntity(List.of(mockMemberRecord))
+                .build();
+
+        mockMember = MemberEntity.builder()
+                .id(1)
+                .email("test@user.com")
+                .name("kim")
+                .username("tester")
+                .records(List.of(mockMemberRecord))
+                .password("1234")
+                .build();
+
+    }
+
+//    @Test
+//    @DisplayName("레코드(이력) 추가 성공")
+//    void add_record_success(){
+//        // given
+//        when(memberRepository.findById(1)).thenReturn(Optional.of(mockMember));
+//
+//        // when
+//        RecordDto.Response response = recordService.addRecord(mockRecord.getId());
+//
+//        // then
+//        assertThat(response.get)
+//
+//    }
+
+    @Test
+    @DisplayName("레코드(이력) 삭제 성공")
+    void remove_record_success(){
+
+    }
+
+    @Test
+    @DisplayName("레코드(이력) 추가 실패 - 레코드 주인이 아님")
+    void remove_record_fail_NoAuthority(){
+
+    }
+
+
+    @Test
+    @DisplayName("레코드 추가 실패 - 없는 레코드")
+    void remove_record_fail_RecordNotFound(){
+
+    }
+
+}

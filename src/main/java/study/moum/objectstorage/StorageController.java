@@ -1,11 +1,10 @@
-package study.moum.community.article.objectstorage;
+package study.moum.objectstorage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/test")
 @RequiredArgsConstructor
 public class StorageController {
 
