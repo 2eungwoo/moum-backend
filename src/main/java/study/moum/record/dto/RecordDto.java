@@ -20,14 +20,18 @@ public class RecordDto {
     @Getter
     public static class Request{
         private String recordName;
-        private int memberId;
-        private int recordId;
+//        private int memberId;
+//        private int recordId;
         private LocalDate startDate;
         private LocalDate endDate;
-        private List<MemberRecordEntity> members;
+//        private List<MemberRecordEntity> members;
 
         public RecordEntity toEntity(){
-            return RecordEntity.builder().build();
+            return RecordEntity.builder()
+                    .recordName(recordName)
+                    .startDate(startDate)
+                    .endDate(endDate)
+                    .build();
 
         }
 
@@ -36,6 +40,17 @@ public class RecordDto {
     @Getter
     @AllArgsConstructor
     public static class Response{
+        private String recordName;
+        private LocalDate startDate;
+        private LocalDate endDate;
+        private int recordId;
+
+        public Response(RecordEntity record){
+            this.recordId = record.getId();
+            this.recordName = record.getRecordName();
+            this.startDate = record.getStartDate();
+            this.endDate = record.getEndDate();
+        }
 
     }
 }
