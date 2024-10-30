@@ -198,7 +198,7 @@ class ArticleServiceTest {
     }
 
     @Test
-    @DisplayName("게시글 수정 성공 - 권한없으면 에러")
+    @DisplayName("게시글 수정 성공")
     void updateArticleWithoutAuthorization() throws IOException {
         // given : Article, Article Details 생성
         ArticleEntity article = ArticleEntity.builder()
@@ -245,7 +245,7 @@ class ArticleServiceTest {
 
 
     @Test
-    @DisplayName("게시글 삭제 테스트 - 권한 없으면 에러") // article, details 둘 다 삭제되는지 봐야함
+    @DisplayName("게시글 삭제 테스트") // article, details 둘 다 삭제되는지 봐야함
     void deleteArticle() {
         // given : Article, Article Details 생성
         ArticleEntity article = ArticleEntity.builder()

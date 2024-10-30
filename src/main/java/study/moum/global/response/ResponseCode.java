@@ -52,7 +52,11 @@ public enum ResponseCode {
     RECORD_ADD_SUCCESS(201,"R001","이력 등록 성공"),
     RECORD_DELETE_SUCCESS(200,"R002","이력 삭제 성공"),
     RECORD_GET_SUCCESS(200,"R003","이력 조회 성공"),
-    RECORD_LIST_GET_SUCCESS(200,"R004","이력 목록 조회 성공");
+    RECORD_LIST_GET_SUCCESS(200,"R004","이력 목록 조회 성공"),
+
+    // Profiles
+    GET_PROFILE_SUCCESS(200,"P001","프로필 조회 성공"),
+    UPDATE_PROFILE_SUCCESS(201,"P002","프로필 업데이트 성공");
 
 
     private final int status;

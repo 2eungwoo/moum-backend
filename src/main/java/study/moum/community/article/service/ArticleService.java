@@ -172,7 +172,7 @@ public class ArticleService {
             // 새로운 파일 업로드
             String newFileName = "articles/" + articleDetailsId + "/" + file.getOriginalFilename(); // 폴더 구조에 맞게 설정
             String newFileUrl = storageService.uploadFile(newFileName, file); // S3에 파일 업로드
-            articleDetails.setFileUrl(newFileUrl); // 새 파일 URL 설정
+            articleDetails.updateArticleImage(newFileUrl);
         }
 
         // article_details, article 둘 다 update

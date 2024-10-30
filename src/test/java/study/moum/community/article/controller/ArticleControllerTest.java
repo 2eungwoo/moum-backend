@@ -183,7 +183,7 @@ class ArticleControllerTest {
         when(articleService.postArticle(any(), any(), anyString())).thenReturn(response);
 
         // MockMultipartFile 생성
-        MockMultipartFile file = new MockMultipartFile("file", "testfile.txt", MediaType.TEXT_PLAIN_VALUE, "test file content".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "testfile.jpg", MediaType.IMAGE_JPEG_VALUE, "test file content".getBytes());
 
         // ArticleRequestDto를 JSON으로 변환하여 MockMultipartFile로 생성
         MockMultipartFile articleRequestDtoFile = new MockMultipartFile("articleRequestDto",

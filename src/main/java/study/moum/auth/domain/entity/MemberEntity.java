@@ -39,8 +39,7 @@ public class MemberEntity {
     @Column(name = "profile_description", nullable = true)
     private String profileDescription;
 
-    @Pattern(regexp = "^[_A-Za-z0-9-]+(\\\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\\\.[A-Za-z0-9]+)*(\\\\.[A-Za-z]{2,})$",
-            message = "이메일 형식이 올바르지 않습니다.")
+    @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "이메일 형식이 올바르지 않습니다.")
     @Column(name = "email", nullable = false)
     private String email;
 
@@ -74,5 +73,26 @@ public class MemberEntity {
 
     public void removeRecordFromMember(RecordEntity record) {
         records.removeIf(memberRecordEntity -> memberRecordEntity.getRecord().equals(record));
+    }
+
+    public void updateProfileImage(String newUrl){
+        this.profileImageUrl = newUrl;
+    }
+
+    public void updateMemberInfo(       String name,
+                                        String username,
+                                        String profileDescription,
+                                        String email,
+                                        String proficiency,
+                                        String instrument,
+                                        String address){
+
+        this.name = name;
+        this.username = username;
+        this.profileDescription = profileDescription;
+        this.email = email;
+        this.proficiency = proficiency;
+        this.instrument = instrument;
+        this.address = address;
     }
 }
