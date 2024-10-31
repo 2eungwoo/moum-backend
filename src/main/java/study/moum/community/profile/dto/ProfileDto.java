@@ -1,16 +1,14 @@
 package study.moum.community.profile.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.moum.team.domain.TeamMemberEntity;
 import study.moum.moum.team.dto.TeamDto;
-import study.moum.record.domain.MemberRecordEntity;
-import study.moum.record.dto.RecordDto;
+import study.moum.community.record.domain.MemberRecordEntity;
+import study.moum.community.record.dto.RecordDto;
 
 import java.util.ArrayList;
 import java.util.List;

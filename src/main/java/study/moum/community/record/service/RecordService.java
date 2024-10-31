@@ -1,17 +1,17 @@
-package study.moum.record.service;
+package study.moum.community.record.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
+import study.moum.community.record.domain.MemberRecordEntity;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
-import study.moum.record.domain.MemberRecordEntity;
-import study.moum.record.domain.RecordEntity;
-import study.moum.record.dto.RecordDto;
-import study.moum.record.repository.MemberRecordRepository;
-import study.moum.record.repository.RecordRepository;
+import study.moum.community.record.domain.RecordEntity;
+import study.moum.community.record.dto.RecordDto;
+import study.moum.community.record.repository.MemberRecordRepository;
+import study.moum.community.record.repository.RecordRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +21,13 @@ public class RecordService {
     private final MemberRecordRepository memberRecordRepository;
     private final MemberRepository memberRepository;
 
+    /**
+     이력 추가(생성)
+     */
     @Transactional
-    public RecordDto.Response addRecord(int profileId, RecordDto.Request requestDto) {
+    public RecordDto.Response addRecord(int memberId, RecordDto.Request requestDto) {
 
-        MemberEntity member = findMember(profileId);
+        MemberEntity member = findMember(memberId);
 
         RecordEntity recordEntity = RecordDto.Request.builder()
                 .startDate(requestDto.getStartDate())
@@ -44,8 +47,12 @@ public class RecordService {
         return new RecordDto.Response(recordEntity);
     }
 
-    public MemberEntity findMember(int profileId){
-        return memberRepository.findById(profileId)
+    /**
+     todo : 이력 삭제
+     */
+
+    public MemberEntity findMember(int memberId){
+        return memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_EXIST));
     }
 

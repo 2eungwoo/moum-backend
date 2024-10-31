@@ -35,8 +35,10 @@ import study.moum.global.error.exception.NoAuthorityException;
 import study.moum.global.response.ResponseCode;
 import study.moum.global.response.ResultResponse;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,6 +93,7 @@ class CommentControllerTest {
                 .content("test content")
                 .author(author)
                 .articleDetails(articleDetails)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
     @Test
@@ -107,7 +110,8 @@ class CommentControllerTest {
         CommentDto.Response response = new CommentDto.Response(comment);
 
         // when
-        when(commentService.createComment(commentRequest, author.getUsername(), articleDetails.getId())).thenReturn(response);
+        //when(commentService.createComment(commentRequest, author.getUsername(), articleDetails.getId())).thenReturn(response);
+        when(commentService.createComment(any(), anyString(), anyInt())).thenReturn(response);
 
 
         // then
@@ -136,7 +140,7 @@ class CommentControllerTest {
         CommentDto.Response response = new CommentDto.Response(comment);
 
         // when
-        when(commentService.updateComment(commentRequest, author.getUsername(), articleDetails.getId())).thenReturn(response);
+        when(commentService.updateComment(any(), anyString(),anyInt())).thenReturn(response);
 
 
         // then

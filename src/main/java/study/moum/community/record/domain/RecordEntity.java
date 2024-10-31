@@ -1,11 +1,9 @@
-package study.moum.record.domain;
+package study.moum.community.record.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import study.moum.auth.domain.entity.MemberEntity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

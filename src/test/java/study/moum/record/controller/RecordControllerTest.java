@@ -1,6 +1,5 @@
 package study.moum.record.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,21 +14,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import study.moum.auth.domain.entity.MemberEntity;
+import study.moum.community.record.controller.RecordController;
 import study.moum.custom.WithAuthUser;
 import study.moum.global.response.ResponseCode;
-import study.moum.moum.moum.controller.MoumController;
-import study.moum.moum.moum.service.MoumService;
-import study.moum.moum.team.domain.TeamEntity;
-import study.moum.moum.team.dto.TeamDto;
-import study.moum.record.domain.RecordEntity;
-import study.moum.record.dto.RecordDto;
-import study.moum.record.service.RecordService;
+import study.moum.community.record.domain.RecordEntity;
+import study.moum.community.record.dto.RecordDto;
+import study.moum.community.record.service.RecordService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
@@ -108,7 +102,7 @@ class RecordControllerTest {
         when(recordService.addRecord(anyInt(), any())).thenReturn(response);
 
         // then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/profiles/{profileId}/records", mockMember.getId())
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/records/{memberId}", mockMember.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
                         .with(csrf()))

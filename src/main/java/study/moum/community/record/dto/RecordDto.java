@@ -1,16 +1,12 @@
-package study.moum.record.dto;
+package study.moum.community.record.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import study.moum.moum.team.domain.TeamEntity;
-import study.moum.moum.team.domain.TeamMemberEntity;
-import study.moum.record.domain.MemberRecordEntity;
-import study.moum.record.domain.RecordEntity;
+import study.moum.community.record.domain.RecordEntity;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public class RecordDto {
 

@@ -24,6 +24,9 @@ public class ProfileService {
     @Value("${ncp.object-storage.bucket}")
     private String bucket;
 
+    /**
+     프로필 조회
+     */
     @Transactional
     public ProfileDto.Response getProfile(int targetMemberId) {
 
@@ -32,6 +35,9 @@ public class ProfileService {
         return new ProfileDto.Response(targetMemberEntity);
     }
 
+    /**
+     프로필 수정
+     */
     @Transactional
     public ProfileDto.Response updateProfile(String loginUserName, int targetMemberId,
                                              ProfileDto.UpdateRequest request, MultipartFile file) throws IOException {

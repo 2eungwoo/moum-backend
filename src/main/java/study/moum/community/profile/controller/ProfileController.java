@@ -22,6 +22,9 @@ public class ProfileController {
 
     private final ProfileService profileService;
 
+    /**
+     프로필 조회
+     */
     @GetMapping("/api/profiles/{memberId}")
     public ResponseEntity<ResultResponse> getProfileById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                          @PathVariable int memberId){
@@ -32,6 +35,9 @@ public class ProfileController {
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(response.getStatus()));
     }
 
+    /**
+     프로필 수정
+     */
     @PatchMapping("/api/profiles/{memberId}")
     public ResponseEntity<ResultResponse> updateProfileById(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                                             @PathVariable int memberId,

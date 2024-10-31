@@ -1,4 +1,4 @@
-package study.moum.record.domain;
+package study.moum.community.record.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import study.moum.auth.domain.entity.MemberEntity;
-import study.moum.moum.team.domain.TeamEntity;
 
 @Builder
 @Getter

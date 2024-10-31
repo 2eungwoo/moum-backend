@@ -1,4 +1,4 @@
-package study.moum.record.controller;
+package study.moum.community.record.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import study.moum.auth.domain.CustomUserDetails;
-import study.moum.global.error.exception.CustomException;
+import study.moum.community.record.service.RecordService;
 import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.response.ResponseCode;
 import study.moum.global.response.ResultResponse;
-import study.moum.record.dto.RecordDto;
-import study.moum.record.service.RecordService;
+import study.moum.community.record.dto.RecordDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,18 +23,24 @@ public class RecordController {
     private final RecordService recordService;
 
 
-    @PostMapping("/api/profiles/{profileId}/records")
+    /**
+     이력 추가(생성)
+     */
+    @PostMapping("/api/records/{memberId}")
     public ResponseEntity<ResultResponse> addRecords(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                                     @PathVariable int profileId, // profileId == memberId
+                                                     @PathVariable int memberId,
                                                      @Valid @RequestBody RecordDto.Request requestDto){
 
         loginCheck(customUserDetails.getUsername());
-        RecordDto.Response responseDto = recordService.addRecord(profileId, requestDto);
+        RecordDto.Response responseDto = recordService.addRecord(memberId, requestDto);
         ResultResponse response = ResultResponse.of(ResponseCode.RECORD_ADD_SUCCESS,responseDto);
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getStatus()));
 
     }
 
+    /**
+     todo : 이력 삭제
+     */
 
     // todo : refactoring -> 중복 메소드
     public String loginCheck(String username){

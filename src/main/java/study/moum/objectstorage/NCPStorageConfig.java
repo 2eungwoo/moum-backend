@@ -25,15 +25,6 @@ public class NCPStorageConfig {
     @Value("${ncp.object-storage.secret-key}")
     private String secretKey;
 
-//
-//    @Bean
-//    public AmazonS3Client objectStorageClient() {
-//        return (AmazonS3Client) AmazonS3ClientBuilder.standard()
-//                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(endPoint, region))
-//                .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-//                .build();
-//    }
-
     @Bean
     public S3Client objectStorageClient() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);

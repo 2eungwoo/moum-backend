@@ -38,7 +38,7 @@ public class QMemberEntity extends EntityPathBase<MemberEntity> {
 
     public final StringPath profileImageUrl = createString("profileImageUrl");
 
-    public final ListPath<study.moum.record.domain.MemberRecordEntity, study.moum.record.domain.QMemberRecordEntity> records = this.<study.moum.record.domain.MemberRecordEntity, study.moum.record.domain.QMemberRecordEntity>createList("records", study.moum.record.domain.MemberRecordEntity.class, study.moum.record.domain.QMemberRecordEntity.class, PathInits.DIRECT2);
+    public final ListPath<study.moum.community.record.domain.MemberRecordEntity, study.moum.community.record.domain.QMemberRecordEntity> records = this.<study.moum.community.record.domain.MemberRecordEntity, study.moum.community.record.domain.QMemberRecordEntity>createList("records", study.moum.community.record.domain.MemberRecordEntity.class, study.moum.community.record.domain.QMemberRecordEntity.class, PathInits.DIRECT2);
 
     public final StringPath role = createString("role");
 
