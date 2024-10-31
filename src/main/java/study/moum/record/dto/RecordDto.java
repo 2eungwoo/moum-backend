@@ -1,10 +1,10 @@
-package study.moum.community.record.dto;
+package study.moum.record.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import study.moum.community.record.domain.RecordEntity;
+import study.moum.record.domain.RecordEntity;
 
 import java.time.LocalDate;
 

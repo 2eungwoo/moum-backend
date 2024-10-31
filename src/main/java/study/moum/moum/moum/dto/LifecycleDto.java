@@ -1,4 +1,4 @@
 package study.moum.moum.moum.dto;
 
-public class MoumDto {
+public class LifecycleDto {
 }

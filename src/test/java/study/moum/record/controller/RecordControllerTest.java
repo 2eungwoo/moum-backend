@@ -14,12 +14,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import study.moum.auth.domain.entity.MemberEntity;
-import study.moum.community.record.controller.RecordController;
 import study.moum.custom.WithAuthUser;
 import study.moum.global.response.ResponseCode;
-import study.moum.community.record.domain.RecordEntity;
-import study.moum.community.record.dto.RecordDto;
-import study.moum.community.record.service.RecordService;
+import study.moum.record.domain.RecordEntity;
+import study.moum.record.dto.RecordDto;
+import study.moum.record.service.RecordService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -110,30 +109,7 @@ class RecordControllerTest {
                 .andExpect(jsonPath("$.message").value(ResponseCode.RECORD_ADD_SUCCESS.getMessage()))
                 .andExpect(jsonPath("$.data.recordName").value("test record"));
     }
-//
-//    @Test
-//    @DisplayName("팀 생성 테스트")
-//    @WithAuthUser(email = "leader@mail.com", username = "mockLeader")
-//    void create_team_success() throws Exception {
-//        // given
-//        TeamEntity mockTeamEntity = teamRequestDto.toEntity();
-//        TeamDto.Response response = new TeamDto.Response(mockTeamEntity);
-//
-//        // when
-//        when(teamService.createTeam(any(TeamDto.Request.class),any(String.class))).thenReturn(response);
-//        //when(teamService.createTeam(any(),anyString())).thenReturn(response);
-//
-//
-//        // then
-//        mockMvc.perform(MockMvcRequestBuilders.post("/api/teams")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(teamRequestDto))
-//                        .with(csrf()))
-//                .andExpect(jsonPath("$.status").value(201))
-//                .andExpect(jsonPath("$.message").value(ResponseCode.CREATE_TEAM_SUCCESS.getMessage()))
-//                .andExpect(jsonPath("$.data.teamName").value("mock team"));
-//    }
-//
+
     @Test
     @DisplayName("레코드(이력) 추가 실패 - 로그인 필요")
     @WithAuthUser

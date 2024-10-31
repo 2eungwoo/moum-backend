@@ -7,22 +7,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import study.moum.moum.moum.domain.MoumRepository;
-import study.moum.moum.moum.domain.MoumTeamRepository;
+import study.moum.moum.moum.domain.LifecycleRepository;
+import study.moum.moum.moum.domain.LifecycleTeamRepository;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class MoumServiceTest {
+class LifecycleServiceTest {
 
     @Spy
     @InjectMocks
-    private MoumService moumService;
+    private LifecycleService lifecycleService;
 
     @Mock
-    private MoumRepository moumRepository;
+    private LifecycleRepository lifecycleRepository;
 
     @Mock
-    private MoumTeamRepository moumTeamRepository;
+    private LifecycleTeamRepository lifecycleTeamRepository;
 
     @BeforeEach
     void setUp() {

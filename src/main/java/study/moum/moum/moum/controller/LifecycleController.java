@@ -2,11 +2,12 @@ package study.moum.moum.moum.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
-import study.moum.moum.moum.service.MoumService;
+import study.moum.moum.moum.service.LifecycleService;
+
 
 @RestController
 @RequiredArgsConstructor
-public class MoumController {
+public class LifecycleController {
 
-    private final MoumService moumService;
+    private final LifecycleService lifecycleService;
 }

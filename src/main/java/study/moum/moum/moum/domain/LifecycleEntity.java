@@ -5,17 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import study.moum.moum.team.domain.TeamMemberEntity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Entity(name = "moum")
-public class MoumEntity {
+@Entity(name = "lifecycle")
+public class LifecycleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

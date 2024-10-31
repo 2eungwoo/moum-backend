@@ -1,11 +1,9 @@
 package study.moum.community.profile.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,14 +16,14 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import study.moum.auth.domain.entity.MemberEntity;
-import study.moum.community.profile.dto.ProfileDto;
-import study.moum.community.profile.service.ProfileService;
+import study.moum.member_profile.controller.ProfileController;
+import study.moum.member_profile.dto.ProfileDto;
+import study.moum.member_profile.service.ProfileService;
 import study.moum.custom.WithAuthUser;
 import study.moum.global.response.ResponseCode;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;

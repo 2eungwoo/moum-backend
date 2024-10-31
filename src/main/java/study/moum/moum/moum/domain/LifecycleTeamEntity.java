@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Entity
-public class MoumTeamEntity {
+public class LifecycleTeamEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

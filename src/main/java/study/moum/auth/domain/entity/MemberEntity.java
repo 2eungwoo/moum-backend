@@ -5,8 +5,8 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import study.moum.moum.team.domain.TeamEntity;
 import study.moum.moum.team.domain.TeamMemberEntity;
-import study.moum.community.record.domain.MemberRecordEntity;
-import study.moum.community.record.domain.RecordEntity;
+import study.moum.record.domain.MemberRecordEntity;
+import study.moum.record.domain.RecordEntity;
 
 import java.util.ArrayList;
 import java.util.List;

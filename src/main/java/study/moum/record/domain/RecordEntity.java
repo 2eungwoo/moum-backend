@@ -1,4 +1,4 @@
-package study.moum.community.record.domain;
+package study.moum.record.domain;
 
 import jakarta.persistence.*;
 import lombok.*;

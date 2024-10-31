@@ -12,18 +12,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import study.moum.custom.WithAuthUser;
-import study.moum.moum.moum.service.MoumService;
-import study.moum.moum.team.controller.TeamController;
+import study.moum.moum.moum.service.LifecycleService;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-@WebMvcTest(MoumController.class)
-class MoumControllerTest {
+@WebMvcTest(LifecycleController.class)
+class LifecycleControllerTest {
 
     @MockBean
-    private MoumService moumService;
+    private LifecycleService lifecycleService;
 
     @Autowired
     private MockMvc mockMvc;

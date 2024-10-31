@@ -1,17 +1,17 @@
-package study.moum.community.record.service;
+package study.moum.record.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
-import study.moum.community.record.domain.MemberRecordEntity;
+import study.moum.record.domain.MemberRecordEntity;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
-import study.moum.community.record.domain.RecordEntity;
-import study.moum.community.record.dto.RecordDto;
-import study.moum.community.record.repository.MemberRecordRepository;
-import study.moum.community.record.repository.RecordRepository;
+import study.moum.record.domain.RecordEntity;
+import study.moum.record.dto.RecordDto;
+import study.moum.record.repository.MemberRecordRepository;
+import study.moum.record.repository.RecordRepository;
 
 @Service
 @RequiredArgsConstructor

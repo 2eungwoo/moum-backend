@@ -1,4 +1,4 @@
-package study.moum.community.profile.controller;
+package study.moum.member_profile.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +8,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.CustomUserDetails;
-import study.moum.community.profile.dto.ProfileDto;
-import study.moum.community.profile.service.ProfileService;
+import study.moum.member_profile.dto.ProfileDto;
+import study.moum.member_profile.service.ProfileService;
 import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.response.ResponseCode;
 import study.moum.global.response.ResultResponse;

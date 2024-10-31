@@ -1,7 +1,6 @@
 package study.moum.community.profile.service;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -11,13 +10,10 @@ import org.mockito.Spy;
 import org.springframework.web.multipart.MultipartFile;
 import study.moum.auth.domain.entity.MemberEntity;
 import study.moum.auth.domain.repository.MemberRepository;
-import study.moum.community.article.domain.article.ArticleEntity;
-import study.moum.community.article.domain.article_details.ArticleDetailsEntity;
-import study.moum.community.article.dto.ArticleDetailsDto;
-import study.moum.community.profile.dto.ProfileDto;
+import study.moum.member_profile.dto.ProfileDto;
+import study.moum.member_profile.service.ProfileService;
 import study.moum.global.error.ErrorCode;
 import study.moum.global.error.exception.CustomException;
-import study.moum.global.error.exception.NoAuthorityException;
 import study.moum.objectstorage.StorageService;
 
 import java.io.IOException;

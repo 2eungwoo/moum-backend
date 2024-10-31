@@ -1,4 +1,4 @@
-package study.moum.community.record.controller;
+package study.moum.record.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import study.moum.auth.domain.CustomUserDetails;
-import study.moum.community.record.service.RecordService;
+import study.moum.record.service.RecordService;
 import study.moum.global.error.exception.NeedLoginException;
 import study.moum.global.response.ResponseCode;
 import study.moum.global.response.ResultResponse;
-import study.moum.community.record.dto.RecordDto;
+import study.moum.record.dto.RecordDto;
 
 @RestController
 @RequiredArgsConstructor
