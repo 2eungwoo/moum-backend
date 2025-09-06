@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/favicon-16x16.png">
+
+    <title>공연 팜플렛</title>
+    <style>
+        .pamphlet-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            margin: 30px auto;
+            max-width: 1000px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .small-image {
+            width: auto;
+            height: auto;
+            max-width: 250px;
+            max-height: 250px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-left: 15px;
+        }
+
+        .full-size-image {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .performance-details dt {
+            font-weight: bold;
+        }
+
+        .info {
+            margin-bottom: 20px;
+        }
+
+        .info .title {
+            font-size: 2.0rem;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 4px;
+        }
+
+        .info .team-name {
+            font-size: 1.4rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .info ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info ul li {
+            margin-bottom: 10px;
+        }
+
+        .genre-badge {
+            display: inline-block;
+            background-color: #6c757d;
+            color: #fff;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="pamphlet-container">
+        <!-- Text Content with Small Image on the Right -->
+        <div class="d-flex flex-column">
+            <div class="d-flex align-items-start">
+                <div class="flex-grow-1">
+                    <dl class="area show-view-top clearfix">
+                        <dt>
+                            <div class="info">
+                                <!-- Name and Team -->
+                                <div>
+                                    <p class="title" th:text="${pamphlet.performanceName}"></p>
+                                    <p class="team-name" th:text="'주최 : ' + ${pamphlet.teamName}"></p>
+                                </div>
+
+                                <!-- Genre -->
+                                <div>
+                                    <span class="genre-badge" th:text="${pamphlet.genre}"></span>
+                                </div>
+                            </div>
+                            <ul>
+                                <li>
+                                    <span class="tit">기간 :</span>
+                                    <span>
+                                        <span th:text="${#dates.format(pamphlet.performanceStartDate, 'yyyy-MM-dd HH:mm')}"></span> ~
+                                        <span th:text="${#dates.format(pamphlet.performanceEndDate, 'yyyy-MM-dd HH:mm')}"></span>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span class="tit">장소 :</span>
+                                    <span th:text="${pamphlet.performanceLocation}"></span>
+                                </li>
+                                <li>
+                                    <span class="tit">가격 :</span>
+                                    <span th:text="'₩' + ${pamphlet.performancePrice}"></span>
+                                </li>
+                                <li>
+                                    <span class="tit">설명 :</span>
+                                    <span th:text="${pamphlet.performanceDescription}"></span>
+                                </li>
+                            </ul>
+                        </dt>
+                    </dl>
+                </div>
+                <!-- Small Image -->
+                <img th:src="@{${pamphlet.performanceImageUrl}}" class="small-image d-none d-md-block" alt="Performance Image">
+            </div>
+
+            <!-- Full-Size Image Below -->
+            <img th:src="@{${pamphlet.performanceImageUrl}}" class="full-size-image mt-4" alt="Full-Size Performance Image">
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

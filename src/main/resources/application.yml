@@ -1,5 +1,13 @@
+management:
+  endpoints:
+    web:
+      enabled: true
+      exposure:
+        include: health,info
+
 server:
   port: 8080
+  address: 0.0.0.0
 
 spring:
   datasource:
@@ -8,6 +16,11 @@ spring:
     #url: jdbc:mysql://{공인IP}:{원격서버mysql포트}/test0831?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: root
     password: zpzzgjdg@$^1
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   jpa:
     open-in-view: true
@@ -26,6 +39,9 @@ spring:
 
   jwt:
     secret: "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbb"
+    expiration : 3600000
+    refresh-token:
+      expiration: 8640000
 
   mail:
     host: smtp.naver.com #smtp ?? ??
@@ -51,6 +67,9 @@ spring:
       port: 6379
       repositories:
         enabled: false
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
 
 logging:
   level:
@@ -63,4 +82,12 @@ ncp:
     access-key: ncp_iam_BPAMKR2MhBwOgB3j1oI5
     secret-key: ncp_iam_BPKMKRCDtYOBhPsxfs0g1Rtl1OV6bBsPtG
     bucket: moumstorage
+
+naver:
+#  client-id
+  X-NCP-APIGW-API-KEY-ID: 3kitedtcgg
+#  client-secret
+  X-NCP-APIGW-API-KEY: FPL9KPlKtuGgTcr4mFV2HLVIpVDT1mTjyQgAWMrt
+#  Naver Maps API url
+  maps-api-url: https://naveropenapi.apigw.ntruss.com
 
