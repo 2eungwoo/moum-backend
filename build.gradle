@@ -1,10 +1,10 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.3.4'
+    id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
-group = 'study'
+group = 'jsl.moum'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -41,6 +41,9 @@ dependencies {
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
     // QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
@@ -49,6 +52,19 @@ dependencies {
 
     // NCP object storage 사용을 위한 의존성. aws s3에서 제공하는 java용 SDK
     implementation 'software.amazon.awssdk:s3:2.20.56'
+
+    // Thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // ZXing QR Code generator
+    implementation 'com.google.zxing:core:3.5.2'
+    implementation 'com.google.zxing:javase:3.5.2'
+
+    // Apache Tika file checker
+    implementation 'org.apache.tika:tika-core:3.0.0'
+
+    // actuator
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
 }
 
