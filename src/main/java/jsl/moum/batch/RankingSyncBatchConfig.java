@@ -55,7 +55,6 @@ public class RankingSyncBatchConfig {
     @Bean
     public ItemWriter<MemberEntity> rankingItemWriter() {
         return items -> {
-            // Use ZADD to add multiple members at once for efficiency
             items.forEach(item -> {
                 if (item.getExp() != null) {
                     redisTemplate.opsForZSet().add(RANKING_KEY, String.valueOf(item.getId()), item.getExp().doubleValue());

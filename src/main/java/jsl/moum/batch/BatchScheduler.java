@@ -15,7 +15,6 @@ public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final Job rankingSyncJob;
 
-    // Run every hour at the start of the hour
     @Scheduled(cron = "0 0 * * * ?")
     public void runRankingSyncJob() throws Exception {
         JobParameters jobParameters = new JobParametersBuilder()

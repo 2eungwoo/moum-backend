@@ -1,11 +1,10 @@
 package jsl.moum.rank.service;
 
+import jsl.moum.auth.domain.CustomUserDetails;
 import jsl.moum.auth.domain.entity.MemberEntity;
 import jsl.moum.auth.domain.repository.MemberRepository;
-import jsl.moum.batch.RankingSyncBatchConfig;
 import jsl.moum.rank.dto.RankingInfoResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +19,19 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RankingService {
 
-    private final RedisTemplate<String, String> redisTemplate;
     private final MemberRepository memberRepository;
+    private final RankingRedisService rankingRedisService;
 
     @Transactional(readOnly = true)
     public List<RankingInfoResponse> getTopRankings(int topN) {
-        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(RankingSyncBatchConfig.RANKING_KEY, 0, topN - 1);
+        if (topN <= 0) {
+            topN = 10;
+        }
+        if (topN > 100) {
+            topN = 100;
+        }
+
+        Set<ZSetOperations.TypedTuple<String>> typedTuples = rankingRedisService.getTopRankersWithScores(topN);
 
         if (typedTuples == null || typedTuples.isEmpty()) {
             return List.of();
@@ -37,12 +42,10 @@ public class RankingService {
                 .map(Integer::parseInt)
                 .collect(Collectors.toList());
 
-        // Fetch all members in one query
         List<MemberEntity> members = memberRepository.findAllById(memberIds);
         Map<Integer, MemberEntity> memberMap = members.stream()
                 .collect(Collectors.toMap(MemberEntity::getId, member -> member));
 
-        // Build response while preserving Redis order
         long rank = 1;
         List<RankingInfoResponse> responseList = new ArrayList<>();
         for (ZSetOperations.TypedTuple<String> tuple : typedTuples) {
@@ -63,12 +66,15 @@ public class RankingService {
     }
 
     @Transactional(readOnly = true)
-    public RankingInfoResponse getMemberRank(Integer memberId) {
-        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-        Long rank = zSetOperations.reverseRank(RankingSyncBatchConfig.RANKING_KEY, String.valueOf(memberId));
+    public RankingInfoResponse getMyRank(CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return null;
+        }
+        Integer memberId = userDetails.getMemberId();
+
+        Long rank = rankingRedisService.getRankForMember(memberId);
 
         if (rank == null) {
-            // Not in ranking
             return null;
         }
 
@@ -80,7 +86,7 @@ public class RankingService {
         }
 
         return RankingInfoResponse.builder()
-                .rank(rank + 1) // rank is 0-based
+                .rank(rank + 1)
                 .memberId(member.getId())
                 .username(member.getUsername())
                 .exp(member.getExp())
@@ -95,9 +101,7 @@ public class RankingService {
                 .orElseThrow(() -> new IllegalArgumentException("Member not found with id: " + memberId));
 
         member.updateMemberExpAndRank(expToAdd);
-        // The change to member will be saved by dirty checking at the end of the transaction.
 
-        // Update Redis in real-time
-        redisTemplate.opsForZSet().incrementScore(RankingSyncBatchConfig.RANKING_KEY, String.valueOf(memberId), expToAdd);
+        rankingRedisService.incrementMemberScore(memberId, expToAdd);
     }
 }

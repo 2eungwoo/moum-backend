@@ -22,23 +22,13 @@ public class RankingController {
 
     @GetMapping("/top/{topN}")
     public ResponseEntity<List<RankingInfoResponse>> getTopRankings(@PathVariable int topN) {
-        if (topN <= 0) {
-            topN = 10; // default to top 10
-        }
-        if (topN > 100) {
-            topN = 100; // limit to top 100
-        }
         List<RankingInfoResponse> topRankings = rankingService.getTopRankings(topN);
         return ResponseEntity.ok(topRankings);
     }
 
     @GetMapping("/me")
     public ResponseEntity<RankingInfoResponse> getMyRank(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.status(401).build(); // Unauthorized
-        }
-        Integer memberId = userDetails.getMemberId();
-        RankingInfoResponse memberRank = rankingService.getMemberRank(memberId);
+        RankingInfoResponse memberRank = rankingService.getMyRank(userDetails);
         if (memberRank == null) {
             return ResponseEntity.notFound().build();
         }
