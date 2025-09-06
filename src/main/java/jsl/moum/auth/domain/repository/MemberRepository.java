@@ -23,4 +23,10 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
     Page<MemberEntity> findAllByBanStatusPaged(@Param(value = "banStatus") boolean banStatus, Pageable pageable);
 
     Long countByBanStatus(boolean banStatus);
+
+    // Redis 장애 시 Fallback을 위한 랭킹 조회 메소드
+    Page<MemberEntity> findByOrderByExpDesc(Pageable pageable);
+
+    @Query("SELECT count(m) + 1 FROM MemberEntity m WHERE m.exp > :exp")
+    long findRankByExp(@Param("exp") Integer exp);
 }

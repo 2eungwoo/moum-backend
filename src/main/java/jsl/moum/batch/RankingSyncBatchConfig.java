@@ -22,6 +22,7 @@ public class RankingSyncBatchConfig {
 
     private final EntityManagerFactory entityManagerFactory;
     private final RedisTemplate<String, String> redisTemplate;
+    private final JobCompletionNotificationListener listener;
 
     private static final int CHUNK_SIZE = 100;
     public static final String RANKING_KEY = "ranking:exp";
@@ -30,6 +31,7 @@ public class RankingSyncBatchConfig {
     public Job rankingSyncJob(JobRepository jobRepository, Step rankingSyncStep) {
         return new JobBuilder("rankingSyncJob", jobRepository)
                 .start(rankingSyncStep)
+                .listener(listener)
                 .build();
     }
 
