@@ -17,10 +17,14 @@ import lombok.*;
 import jsl.moum.moum.team.domain.TeamEntity;
 import jsl.moum.moum.team.domain.TeamMemberEntity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,6 +36,7 @@ import java.util.List;
 @Getter
 @Setter
 @Slf4j
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "member")
 public class MemberEntity {
 
@@ -129,6 +134,13 @@ public class MemberEntity {
     @Transient
     private int totalRecordCount;
 
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "exp_updated_at", nullable = false)
+    private LocalDateTime expUpdatedAt;
+
     public void changeActiveStatusFalse(){
         this.activeStatus = false;
     }
@@ -143,6 +155,7 @@ public class MemberEntity {
         //this.exp = this.exp + this.teams.size() + this.records.size() + newExp;
         this.exp += newExp;
         this.tier = Rank.getRank(this.exp);
+        this.expUpdatedAt = LocalDateTime.now(); // exp 변경 시 시간 기록
         log.info("======= updateMemberExpAndRank() tier,exp:{}, {}",tier, exp);
     }
 
