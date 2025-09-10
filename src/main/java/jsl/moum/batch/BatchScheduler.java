@@ -8,6 +8,8 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class BatchScheduler {
@@ -18,6 +20,7 @@ public class BatchScheduler {
     @Scheduled(cron = "0 0 * * * ?")
     public void runRankingSyncJob() throws Exception {
         JobParameters jobParameters = new JobParametersBuilder()
+                .addLocalDateTime("lastBatchRunTime", LocalDateTime.now())
                 .addLong("time", System.currentTimeMillis())
                 .toJobParameters();
         jobLauncher.run(rankingSyncJob, jobParameters);
