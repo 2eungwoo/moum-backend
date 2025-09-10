@@ -66,6 +66,9 @@ dependencies {
     // actuator
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // Redisson for distributed locks
+    implementation 'org.redisson:redisson-spring-boot-starter:3.29.0'
+
 }
 
 tasks.named('test') {
