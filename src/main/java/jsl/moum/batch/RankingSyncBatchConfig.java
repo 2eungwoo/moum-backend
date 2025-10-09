@@ -28,14 +28,16 @@ public class RankingSyncBatchConfig {
     private final EntityManagerFactory entityManagerFactory;
     private final RedisTemplate<String, String> redisTemplate;
     private final JobCompletionNotificationListener listener;
+    private final RankingTrimTasklet rankingTrimTasklet; // Tasklet 주입
 
     private static final int CHUNK_SIZE = 100;
     public static final String RANKING_KEY = "ranking:exp";
 
     @Bean
-    public Job rankingSyncJob(JobRepository jobRepository, Step rankingSyncStep) {
+    public Job rankingSyncJob(JobRepository jobRepository, Step rankingSyncStep, Step rankingTrimStep) {
         return new JobBuilder("rankingSyncJob", jobRepository)
-                .start(rankingSyncStep)
+                .start(rankingSyncStep) // 동기화 스텝
+                .next(rankingTrimStep) // 동기화 후 Trim 스텝
                 .listener(listener)
                 .build();
     }
@@ -46,6 +48,13 @@ public class RankingSyncBatchConfig {
                 .<MemberEntity, MemberEntity>chunk(CHUNK_SIZE, transactionManager)
                 .reader(rankingItemReader(null)) // @StepScope will inject actual value
                 .writer(rankingItemWriter())
+                .build();
+    }
+
+    @Bean
+    public Step rankingTrimStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new StepBuilder("rankingTrimStep", jobRepository)
+                .tasklet(rankingTrimTasklet, transactionManager)
                 .build();
     }
 
