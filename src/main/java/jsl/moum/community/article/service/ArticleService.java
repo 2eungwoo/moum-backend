@@ -20,6 +20,8 @@ import jsl.moum.rank.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -103,10 +105,35 @@ public class ArticleService {
     }
 
     /**
-     * 게시글 조회
+     * 게시글 조회 (캐시 적용)
+     */
+    @Cacheable(value = "article", key = "#articleId")
+    public ArticleDetailsDto.Response findArticle(int articleId) {
+        log.debug("Finding article from DB: {}", articleId);
+        ArticleEntity article = getArticle(articleId);
+        ArticleDetailsEntity articleDetails = getArticleDetails(articleId);
+        return new ArticleDetailsDto.Response(articleDetails, article);
+    }
+
+    /**
+     * ID 목록으로 여러 게시글 조회 (추천 서비스용)
+     */
+    public List<ArticleDto.Response> getArticlesByIds(List<Long> articleIds) {
+        return articleIds.stream()
+                .map(id -> {
+                    ArticleDetailsDto.Response detailsResponse = findArticle(id.intValue());
+                    return new ArticleDto.Response(detailsResponse);
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 게시글 조회 (조회수 증가 로직 포함 및 캐시 무효화)
      */
     @Transactional
+    @CacheEvict(value = "article", key = "#articleId")
     public ArticleDetailsDto.Response getArticleById(int articleId, String loginUserName){
+        log.debug("Evicting cache and updating view count for article: {}", articleId);
         ArticleEntity article = getArticle(articleId);
         ArticleDetailsEntity articleDetails = getArticleDetails(articleId);
 
@@ -127,17 +154,16 @@ public class ArticleService {
                 .findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")))
                 .getContent();
 
-        List<ArticleDto.Response> articleResponseList = articles.stream()
+        return articles.stream()
                 .map(ArticleDto.Response::new)
                 .collect(Collectors.toList());
-
-        return articleResponseList;
     }
 
     /**
-     * 게시글 수정
+     * 게시글 수정 (캐시 무효화)
      */
     @Transactional
+    @CacheEvict(value = "article", key = "#articleDetailsId")
     public ArticleDetailsDto.Response updateArticleDetails(int articleDetailsId,
                                                            ArticleDetailsDto.Request articleDetailsRequestDto,
                                                            List<MultipartFile> files,
@@ -182,9 +208,10 @@ public class ArticleService {
     }
 
     /**
-     * 게시글 삭제
+     * 게시글 삭제 (캐시 무효화)
      */
     @Transactional
+    @CacheEvict(value = "article", key = "#articleDetailsId")
     public ArticleDto.Response deleteArticleDetails(int articleDetailsId, String memberName){
 
         ArticleDetailsEntity articleDetails = getArticleDetails(articleDetailsId);
