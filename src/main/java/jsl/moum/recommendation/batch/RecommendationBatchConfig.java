@@ -68,32 +68,26 @@ public class RecommendationBatchConfig {
 
     @Bean
     public ItemProcessor<Member, AbstractMap.SimpleEntry<String, List<String>>> recommendationProcessor() {
-        // 실제 프로덕션에서는 콘텐츠의 양을 고려하여 필터링/샘플링 필요
-        List<Article> allArticles = articleRepository.findAll();
-
         return member -> {
-            // 분석 로직: 사용자 프로필과 콘텐츠의 관련도를 기반으로 점수 계산 (예시)
-            List<String> recommendedArticleIds = allArticles.stream()
+            List<Article> relevantArticles = articleRepository.findRelevantArticles(member.getProfile().getGenres());
+
+            List<String> recommendedArticleIds = relevantArticles.stream()
                     .map(article -> {
                         long score = 0;
-                        // 예시 로직 1: 사용자의 관심 장르와 게시글 태그가 일치하면 점수 부여
-                        // if (member.getProfile().getGenres().contains(article.getTag())) {
-                        //     score += 10;
-                        // }
-                        // 예시 로직 2: 사용자의 활동 지역과 게시글 지역 정보가 관련 있으면 점수 부여
-                        // if (isRelated(member.getProfile().getLocation(), article.getLocation())) {
-                        //     score += 5;
-                        // }
+                        if (member.getProfile().getGenres().contains(article.getTag())) {
+                            score += 10;
+                        }
+                        // 필요에 따라 다른 가산점 로직 추가 (예: 지역, 아티스트 등)
                         return new AbstractMap.SimpleEntry<>(article, score);
                     })
-                    .filter(entry -> entry.getValue() > 0) // 점수가 있는 콘텐츠만 필터링
-                    .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue())) // 점수 순으로 정렬
+                    .filter(entry -> entry.getValue() > 0)
+                    .sorted((e1, e2) -> Long.compare(e2.getValue(), e1.getValue()))
                     .map(entry -> entry.getKey().getId().toString())
-                    .limit(50) // 상위 50개만 추천
+                    .limit(50)
                     .collect(Collectors.toList());
 
             if (recommendedArticleIds.isEmpty()) {
-                return null; // 추천할 것이 없으면 null 반환
+                return null;
             }
 
             String key = String.format(RECOMMENDATION_KEY_PREFIX, member.getId());
